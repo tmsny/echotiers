@@ -138,6 +138,11 @@
         .mode-btn-modern i {
             font-size: 1rem;
         }
+        .mode-icon-img {
+            height: 1.2rem;
+            width: auto;
+            object-fit: contain;
+        }
         .mode-btn-modern.active {
             background: #3B82F6;
             border-color: #60A5FA;
@@ -443,15 +448,15 @@
 
     // ----- Spielmodi (LTM entfernt) -----
     const GAME_MODES = [
-        { id: "overall", label: "🏆 Overall", icon: "fa-trophy" },
-        { id: "vanilla", label: "🍃 Vanilla", icon: "fa-tree" },
-        { id: "uhc", label: "🏹 UHC", icon: "fa-crosshairs" },
-        { id: "pot", label: "🧪 Pot", icon: "fa-flask" },
-        { id: "nethop", label: "🔥 NethOP", icon: "fa-dragon" },
-        { id: "smp", label: "🌍 SMP", icon: "fa-globe" },
-        { id: "sword", label: "⚔️ Sword", icon: "fa-gavel" },
-        { id: "axe", label: "🪓 Axe", icon: "fa-axe" },
-        { id: "mace", label: "🔨 Mace", icon: "fa-hammer" }
+        { id: "overall", label: "Overall", icon: "fa-trophy", image: null },
+        { id: "vanilla", label: "Vanilla", icon: "fa-tree", image: "img/vanilla.png" },
+        { id: "uhc", label: "UHC", icon: "fa-crosshairs", image: "img/uhc.png" },
+        { id: "pot", label: "Pot", icon: "fa-flask", image: "img/pot.png" },
+        { id: "nethop", label: "NethOP", icon: "fa-dragon", image: "img/nethop.png" },
+        { id: "smp", label: "SMP", icon: "fa-globe", image: "img/smp.png" },
+        { id: "sword", label: "Sword", icon: "fa-gavel", image: "img/sword.png" },
+        { id: "axe", label: "Axe", icon: "fa-axe", image: "img/axe.png" },
+        { id: "mace", label: "Mace", icon: "fa-hammer", image: "img/mace.png" }
     ];
 
     const TIERS = ["NT", "HT1", "HT2", "HT3", "HT4", "HT5", "LT1", "LT2", "LT3", "LT4", "LT5"];
@@ -665,7 +670,11 @@
         GAME_MODES.forEach(mode => {
             const btn = document.createElement("button");
             btn.className = `mode-btn-modern ${currentMode === mode.id ? 'active' : ''}`;
-            btn.innerHTML = `<i class="fas ${mode.icon}"></i> ${mode.label}`;
+            if (mode.image) {
+                btn.innerHTML = `<img src="${mode.image}" alt="${mode.label}" class="mode-icon-img"> ${mode.label}`;
+            } else {
+                btn.innerHTML = `<i class="fas ${mode.icon}"></i> ${mode.label}`;
+            }
             btn.addEventListener("click", () => {
                 currentMode = mode.id;
                 document.querySelectorAll(".mode-btn-modern").forEach(b => b.classList.remove("active"));

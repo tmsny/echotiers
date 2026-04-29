@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>McTierlist • Competitive Minecraft Ranking</title>
+    <!-- Google Fonts + Font Awesome 6 -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase modular SDKs (via import map) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js",
+                "firebase/database": "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js"
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 20% 30%, #0A0F1E, #02040C);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #EDF2F8;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        .glass-panel {
+            background: rgba(12, 20, 35, 0.68);
+            backdrop-filter: blur(16px);
+            border-radius: 2rem;
+            border: 1px solid rgba(66, 153, 225, 0.25);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1.8rem 2rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 2.2rem;
+        }
+        .logo-area {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        h1 {
+            font-weight: 800;
+            font-size: 2.2rem;
+            background: linear-gradient(125deg, #C084FC, #3B82F6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+        .badge-new {
+            background: #1E2A44;
+            padding: 0.25rem 0.85rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #A5F3C3;
+        }
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .discord-btn {
+            background: #5865F2;
+            padding: 0.6rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+        }
+        .discord-btn:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+        }
+        .auth-card {
+            background: #0F172AB3;
+            border-radius: 60px;
+            padding: 0.2rem 0.2rem 0.2rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Modus Buttons */
+        .modes-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-bottom: 2rem;
+        }
+        .mode-btn-modern {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(71, 85, 105, 0.6);
+            padding: 0.7rem 1.4rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #CBD5E1;
+        }
+        .mode-btn-modern i {
+            font-size: 1rem;
+        }
+        .mode-btn-modern.active {
+            background: #3B82F6;
+            border-color: #60A5FA;
+            color: white;
+            box-shadow: 0 0 15px rgba(59,130,246,0.4);
+            transform: scale(1.02);
+        }
+        .mode-btn-modern:hover:not(.active) {
+            background: #334155;
+            transform: translateY(-3px);
+            border-color: #5B8CBF;
+            color: #F1F5F9;
+        }
+
+        /* Filterleiste */
+        .filter-modern {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1.2rem;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 80px;
+        }
+        .filter-group {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-input, .tier-select-filter {
+            background: #0F172A;
+            border: 1px solid #2D3A5E;
+            padding: 0.6rem 1.2rem;
+            border-radius: 60px;
+            color: white;
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-input:focus, .tier-select-filter:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 8px rgba(59,130,246,0.3);
+        }
+        .role-indicator {
+            background: #1E293B;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Spieler Karten */
+        .players-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .player-card {
+            background: rgba(15, 25, 45, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 1.8rem;
+            padding: 1rem 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border: 1px solid rgba(59,130,246,0.2);
+            transition: all 0.3s ease;
+            animation: fadeSlideUp 0.35s ease-out;
+        }
+        .player-card:hover {
+            transform: translateY(-6px);
+            border-color: #3B82F6;
+            background: rgba(22, 35, 60, 0.9);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5);
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex: 2;
+            min-width: 200px;
+        }
+        .avatar {
+            width: 56px;
+            height: 56px;
+            background: #0F172A;
+            border-radius: 100px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 16px -6px black;
+            transition: 0.2s;
+        }
+        .player-card:hover .avatar {
+            transform: scale(1.02);
+        }
+        .player-name {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.2px;
+        }
+        .tier-modern {
+            padding: 0.45rem 1.3rem;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            font-family: monospace;
+            min-width: 90px;
+            text-align: center;
+            transition: all 0.1s;
+            background: #1e293b;
+            box-shadow: inset 0 1px 2px #00000020, 0 4px 8px rgba(0,0,0,0.2);
+        }
+        /* HT / LT Ränge */
+        .tier-HT1 { background: linear-gradient(145deg, #FACC15, #EAB308); color: #0F172A; box-shadow: 0 0 8px #FACC15; }
+        .tier-HT2 { background: linear-gradient(145deg, #FDE047, #CA8A04); color: #0F172A; }
+        .tier-HT3 { background: #A3E635; color: #0F172A; }
+        .tier-HT4 { background: #86EFAC; color: #0F172A; }
+        .tier-HT5 { background: #4ADE80; color: #0F172A; }
+        .tier-LT1 { background: #60A5FA; color: #0F172A; }
+        .tier-LT2 { background: #38BDF8; color: #0F172A; }
+        .tier-LT3 { background: #818CF8; color: #FFF; }
+        .tier-LT4 { background: #C084FC; color: #FFF; }
+        .tier-LT5 { background: #E879F9; color: #FFF; }
+        
+        .admin-actions {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+        .admin-select {
+            background: #0F172A;
+            border: 1px solid #3B82F6;
+            padding: 0.5rem 1rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .admin-save, .admin-delete {
+            background: #2563EB;
+            border: none;
+            padding: 0.45rem 1.1rem;
+            border-radius: 60px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .admin-delete { background: #B91C1C; }
+        .admin-save:hover, .admin-delete:hover {
+            transform: scale(1.02);
+            filter: brightness(1.05);
+        }
+        .add-player-round {
+            background: #10B981;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 700;
+            margin-top: 1.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 6px 14px rgba(16,185,129,0.3);
+        }
+        .add-player-round:hover {
+            transform: translateY(-3px);
+            background: #059669;
+        }
+        .empty-modern {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2rem;
+        }
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #5B6E8C;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 760px) {
+            .container { padding: 1rem; }
+            .player-card { flex-direction: column; align-items: stretch; }
+            .admin-actions { justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo-area">
+            <h1><i class="fas fa-chart-simple"></i> McTierlist</h1>
+            <div class="badge-new">HT1 → LT5</div>
+        </div>
+        <div class="header-actions">
+            <a href="https://discord.gg/mctiers" target="_blank" class="discord-btn"><i class="fab fa-discord"></i> Discord Community</a>
+            <div id="authWidget" class="auth-card"></div>
+        </div>
+    </div>
+
+    <div id="modesList" class="modes-strip"></div>
+
+    <div class="filter-modern">
+        <div class="filter-group">
+            <i class="fas fa-search" style="color:#94A3B8;"></i>
+            <input type="text" id="searchGlobal" class="search-input" placeholder="Spieler / Skin...">
+            <select id="tierFilterGlobal" class="tier-select-filter">
+                <option value="all">Alle Ränge</option>
+                <option value="HT1">HT1</option><option value="HT2">HT2</option><option value="HT3">HT3</option>
+                <option value="HT4">HT4</option><option value="HT5">HT5</option>
+                <option value="LT1">LT1</option><option value="LT2">LT2</option><option value="LT3">LT3</option>
+                <option value="LT4">LT4</option><option value="LT5">LT5</option>
+            </select>
+        </div>
+        <div id="statusBadge" class="role-indicator"><i class="fas fa-lock"></i> Nur-Lesen</div>
+    </div>
+
+    <div id="playersList" class="players-grid">
+        <div class="empty-modern"><i class="fas fa-spinner fa-pulse"></i> Lade Ranking...</div>
+    </div>
+
+    <div id="adminZone" style="display:none;">
+        <button id="newPlayerBtn" class="add-player-round"><i class="fas fa-plus-circle"></i> Neuen Spieler erstellen</button>
+    </div>
+
+    <footer>
+        <span><i class="fas fa-database"></i> Firebase Realtime Sync</span>
+        <span><i class="fas fa-shield-alt"></i> Admin: tomy.blasbichler@gmail.com</span>
+        <span><i class="fas fa-head-side-goggles"></i> Ranks HT1 → LT5</span>
+    </footer>
+</div>
+
+<script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getDatabase, ref, onValue, set, remove, get } from "firebase/database";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCEV8hoG9matJt1QoCZKaHK1asQzIODsOs",
+        authDomain: "mcpvp-44058.firebaseapp.com",
+        databaseURL: "https://mcpvp-44058-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mcpvp-44058",
+        storageBucket: "mcpvp-44058.firebasestorage.app",
+        messagingSenderId: "81048565647",
+        appId: "1:81048565647:web:f5721cf4b1438d1c89bdfa"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // ----- Spielmodi (exakt wie mctiers) -----
+    const GAME_MODES = [
+        { id: "overall", label: "🏆 Overall", icon: "fa-trophy" },
+        { id: "ltm", label: "🎲 LTMs", icon: "fa-dice-d6" },
+        { id: "vanilla", label: "🍃 Vanilla", icon: "fa-tree" },
+        { id: "uhc", label: "🏹 UHC", icon: "fa-crosshairs" },
+        { id: "pot", label: "🧪 Pot", icon: "fa-flask" },
+        { id: "nethop", label: "🔥 NethOP", icon: "fa-dragon" },
+        { id: "smp", label: "🌍 SMP", icon: "fa-globe" },
+        { id: "sword", label: "⚔️ Sword", icon: "fa-gavel" },
+        { id: "axe", label: "🪓 Axe", icon: "fa-axe" },
+        { id: "mace", label: "🔨 Mace", icon: "fa-hammer" }
+    ];
+
+    const TIERS = ["HT1", "HT2", "HT3", "HT4", "HT5", "LT1", "LT2", "LT3", "LT4", "LT5"];
+    
+    // --- Global State ---
+    let playersMap = {};        // id -> { name, tiers: { overall: "HT1", ... } }
+    let currentMode = "overall";
+    let searchQuery = "";
+    let tierFilter = "all";
+    let isAdminUser = false;    // nur wenn email = tomy.blasbichler@gmail.com UND eingeloggt
+    let currentFirebaseUser = null;
+
+    // --- Helper: Avatar wie auf mctiers (minotar helm 3D? aber classic face)
+    const getAvatarUrl = (name) => `https://minotar.net/helm/${encodeURIComponent(name)}/56.png`;
+
+    // --- Tier CSS Klasse dynamisch
+    function getTierStyle(tier) {
+        const mapping = {
+            "HT1":"tier-HT1","HT2":"tier-HT2","HT3":"tier-HT3","HT4":"tier-HT4","HT5":"tier-HT5",
+            "LT1":"tier-LT1","LT2":"tier-LT2","LT3":"tier-LT3","LT4":"tier-LT4","LT5":"tier-LT5"
+        };
+        return mapping[tier] || "tier-HT3";
+    }
+
+    // --- Filter + Rendering
+    function getFilteredPlayers() {
+        return Object.values(playersMap).filter(p => {
+            const matchName = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+            if (!matchName) return false;
+            if (tierFilter !== "all") {
+                const playerTier = p.tiers?.[currentMode] || "HT3";
+                if (playerTier !== tierFilter) return false;
+            }
+            return true;
+        }).sort((a,b) => a.name.localeCompare(b.name));
+    }
+
+    function renderPlayers() {
+        const container = document.getElementById("playersList");
+        if (!container) return;
+        const filtered = getFilteredPlayers();
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-modern"><i class="fas fa-user-slash"></i> Keine Spieler gefunden.<br>${isAdminUser ? 'Nutze + Neuen Spieler' : 'Admin-Login erforderlich für Änderungen'}</div>`;
+            return;
+        }
+        let html = "";
+        for (const player of filtered) {
+            const currentTier = player.tiers?.[currentMode] || "HT3";
+            const tierClass = getTierStyle(currentTier);
+            html += `
+                <div class="player-card" data-id="${player.id}">
+                    <div class="player-info">
+                        <div class="avatar">
+                            <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
+                        </div>
+                        <div class="player-name">${escapeHtml(player.name)}</div>
+                        <div class="tier-modern ${tierClass}">${currentTier}</div>
+                    </div>
+            `;
+            if (isAdminUser) {
+                let selectHtml = `<select class="admin-select" data-playerid="${player.id}" data-mode="${currentMode}">`;
+                for (let t of TIERS) {
+                    const selected = (t === currentTier) ? "selected" : "";
+                    selectHtml += `<option value="${t}" ${selected}>${t}</option>`;
+                }
+                selectHtml += `</select>`;
+                html += `
+                    <div class="admin-actions">
+                        ${selectHtml}
+                        <button class="admin-save" data-player="${player.id}" data-mode="${currentMode}"><i class="fas fa-check"></i> Speichern</button>
+                        <button class="admin-delete" data-player="${player.id}" data-name="${escapeHtml(player.name)}"><i class="fas fa-trash-can"></i> Löschen</button>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+        if (isAdminUser) attachAdminListeners();
+    }
+
+    function attachAdminListeners() {
+        document.querySelectorAll(".admin-save").forEach(btn => {
+            btn.removeEventListener("click", handleTierSave);
+            btn.addEventListener("click", handleTierSave);
+        });
+        document.querySelectorAll(".admin-delete").forEach(btn => {
+            btn.removeEventListener("click", handlePlayerDelete);
+            btn.addEventListener("click", handlePlayerDelete);
+        });
+    }
+
+    async function handleTierSave(e) {
+        const btn = e.currentTarget;
+        const playerId = btn.getAttribute("data-player");
+        const mode = btn.getAttribute("data-mode");
+        const containerActions = btn.closest(".admin-actions");
+        const select = containerActions?.querySelector(".admin-select");
+        if (!select || !playerId || !mode) return;
+        const newTier = select.value;
+        try {
+            await set(ref(db, `players/${playerId}/tiers/${mode}`), newTier);
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Gespeichert!';
+            setTimeout(() => { if(btn) btn.innerHTML = '<i class="fas fa-check"></i> Speichern'; }, 1000);
+        } catch (err) {
+            alert("Fehler beim Aktualisieren.");
+        }
+    }
+
+    async function handlePlayerDelete(e) {
+        const btn = e.currentTarget;
+        const playerId = btn.getAttribute("data-player");
+        const playerName = btn.getAttribute("data-name");
+        if (!playerId) return;
+        if (confirm(`Spieler "${playerName}" endgültig aus der Tierlist entfernen?`)) {
+            try {
+                await remove(ref(db, `players/${playerId}`));
+            } catch (err) {
+                alert("Löschen fehlgeschlagen");
+            }
+        }
+    }
+
+    async function addNewPlayer() {
+        const rawName = prompt("Name des Spielers / Skins:", "Neuer Spieler");
+        if (!rawName || rawName.trim() === "") return;
+        const name = rawName.trim();
+        let id = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        if (!id) id = "player_" + Date.now();
+        if (playersMap[id]) {
+            alert("Dieser Spieler existiert bereits!");
+            return;
+        }
+        const defaultTiers = {};
+        for (const m of GAME_MODES) defaultTiers[m.id] = "HT3";   // Mittlerer Rang
+        const newPlayer = { name: name, tiers: defaultTiers };
+        try {
+            await set(ref(db, `players/${id}`), newPlayer);
+        } catch(e) {
+            alert("Fehler beim Erstellen: " + e.message);
+        }
+    }
+
+    // --- Beispieldaten (falls DB leer) ---
+    async function seedSampleData() {
+        const snapshot = await get(ref(db, "players"));
+        if (snapshot.exists()) return;
+        const samplePlayers = [
+            { name: "Technoblade", tiers: { overall:"HT1", ltm:"HT2", vanilla:"HT1", uhc:"HT1", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT2", mace:"HT3" } },
+            { name: "Fruitberries", tiers: { overall:"HT1", ltm:"HT1", vanilla:"HT1", uhc:"HT2", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT1", mace:"HT2" } },
+            { name: "Dream", tiers: { overall:"HT3", ltm:"HT1", vanilla:"HT4", uhc:"LT1", pot:"HT2", nethop:"HT3", smp:"HT4", sword:"HT3", axe:"LT2", mace:"LT3" } },
+            { name: "Purpled", tiers: { overall:"HT2", ltm:"HT1", vanilla:"HT3", uhc:"HT3", pot:"HT2", nethop:"HT2", smp:"HT3", sword:"HT2", axe:"HT4", mace:"LT1" } },
+            { name: "Illumina", tiers: { overall:"HT1", ltm:"HT2", vanilla:"HT1", uhc:"HT2", pot:"HT3", nethop:"HT2", smp:"HT2", sword:"HT1", axe:"HT2", mace:"HT3" } },
+            { name: "Sapnap", tiers: { overall:"HT4", ltm:"HT3", vanilla:"LT1", uhc:"LT2", pot:"HT1", nethop:"HT4", smp:"LT1", sword:"HT3", axe:"LT3", mace:"LT4" } },
+            { name: "Jojosolos", tiers: { overall:"HT2", ltm:"HT2", vanilla:"HT3", uhc:"HT2", pot:"HT2", nethop:"HT3", smp:"HT2", sword:"HT2", axe:"HT3", mace:"HT4" } }
+        ];
+        for (const p of samplePlayers) {
+            const id = p.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            await set(ref(db, `players/${id}`), { name: p.name, tiers: p.tiers });
+        }
+    }
+
+    // --- Firebase Listener realtime ---
+    function subscribePlayers() {
+        const playersRef = ref(db, "players");
+        onValue(playersRef, (snap) => {
+            const data = snap.val();
+            if (data) {
+                const newMap = {};
+                for (const [id, val] of Object.entries(data)) {
+                    if (val && typeof val === 'object') {
+                        let tiers = val.tiers || {};
+                        for (const mode of GAME_MODES) if (!tiers[mode.id]) tiers[mode.id] = "HT3";
+                        newMap[id] = { id, name: val.name || "Unbekannt", tiers };
+                    }
+                }
+                playersMap = newMap;
+            } else {
+                playersMap = {};
+            }
+            renderPlayers();
+        });
+    }
+
+    // --- UI Komponenten bauen: Modus Buttons, Filter-Listener ---
+    function buildUI() {
+        const modesContainer = document.getElementById("modesList");
+        modesContainer.innerHTML = "";
+        GAME_MODES.forEach(mode => {
+            const btn = document.createElement("button");
+            btn.className = `mode-btn-modern ${currentMode === mode.id ? 'active' : ''}`;
+            btn.innerHTML = `<i class="fas ${mode.icon}"></i> ${mode.label}`;
+            btn.addEventListener("click", () => {
+                currentMode = mode.id;
+                document.querySelectorAll(".mode-btn-modern").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderPlayers();
+            });
+            modesContainer.appendChild(btn);
+        });
+
+        const searchField = document.getElementById("searchGlobal");
+        const tierSelect = document.getElementById("tierFilterGlobal");
+        searchField.addEventListener("input", (e) => { searchQuery = e.target.value; renderPlayers(); });
+        tierSelect.addEventListener("change", (e) => { tierFilter = e.target.value; renderPlayers(); });
+        
+        const newBtn = document.getElementById("newPlayerBtn");
+        if (newBtn) newBtn.addEventListener("click", addNewPlayer);
+    }
+
+    // --- Auth UI & Admin Bereich ---
+    function updateAuthUI(user) {
+        const authWidget = document.getElementById("authWidget");
+        const adminZone = document.getElementById("adminZone");
+        const statusSpan = document.getElementById("statusBadge");
+        if (user && user.email === "tomy.blasbichler@gmail.com") {
+            isAdminUser = true;
+            authWidget.innerHTML = `<span style="padding-left:0.5rem;"><i class="fas fa-crown"></i> ${user.email}</span><button id="signOutBtn" class="admin-delete" style="background:#475569; margin-left:0.5rem;">Logout</button>`;
+            adminZone.style.display = "block";
+            statusSpan.innerHTML = '<i class="fas fa-pen-fancy"></i> Admin-Modus (bearbeitbar)';
+            document.getElementById("signOutBtn")?.addEventListener("click", () => signOut(auth));
+        } else if (user) {
+            isAdminUser = false;
+            authWidget.innerHTML = `<span><i class="fas fa-user"></i> ${user.email}</span><button id="signOutBtn" style="background:#334155; border:none; border-radius:40px; padding:0.3rem 1rem; margin-left:0.7rem; cursor:pointer;">Abmelden</button>`;
+            adminZone.style.display = "none";
+            statusSpan.innerHTML = '<i class="fas fa-eye"></i> Nur-Lesen · Keine Admin-Rechte';
+            document.getElementById("signOutBtn")?.addEventListener("click", () => signOut(auth));
+        } else {
+            isAdminUser = false;
+            authWidget.innerHTML = `<button id="loginWithGoogle" class="discord-btn" style="background:#1E293B; padding:0.4rem 1rem;"><i class="fab fa-google"></i> Admin Login</button>`;
+            adminZone.style.display = "none";
+            statusSpan.innerHTML = '<i class="fas fa-lock"></i> Nicht angemeldet · Nur-Lesen';
+            document.getElementById("loginWithGoogle")?.addEventListener("click", async () => {
+                try {
+                    await signInWithPopup(auth, provider);
+                } catch(e) { alert("Google Login fehlgeschlagen"); }
+            });
+        }
+        renderPlayers(); // neu rendern für admin controls
+    }
+
+    // --- Start ---
+    async function init() {
+        buildUI();
+        await seedSampleData();
+        subscribePlayers();
+        onAuthStateChanged(auth, (user) => {
+            currentFirebaseUser = user;
+            updateAuthUI(user);
+        });
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    init().catch(console.error);
+</script>
+</body>
+</html>

@@ -656,8 +656,22 @@
             statusSpan.innerHTML = '<i class="fas fa-lock"></i> Nicht angemeldet · Nur-Lesen';
             document.getElementById("loginWithGoogle")?.addEventListener("click", async () => {
                 try {
+                    console.log("Google Login wird eingeleitet...", auth, provider);
                     await signInWithPopup(auth, provider);
-                } catch(e) { alert("Google Login fehlgeschlagen"); }
+                } catch(e) {
+                    console.error("Google Login Fehler:", e.code, e.message);
+                    let msg = "Google Login fehlgeschlagen";
+                    if (e.code === "auth/operation-not-supported-in-this-environment") {
+                        msg = "Popup-Fenster konnte nicht geöffnet werden. Bitte Check Pop-up Blocker.";
+                    } else if (e.code === "auth/popup-closed-by-user") {
+                        msg = "Popup wurde geschlossen.";
+                    } else if (e.code === "auth/popup-blocked") {
+                        msg = "Popup wurde blockiert. Bitte Pop-up Blocker deaktivieren.";
+                    } else if (e.code === "auth/unauthorized-domain") {
+                        msg = "Diese Domain ist nicht in Firebase konfiguriert!";
+                    }
+                    alert(msg + "\n\nFehler: " + e.code);
+                }
             });
         }
         renderPlayers(); // neu rendern für admin controls

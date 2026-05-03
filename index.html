@@ -470,6 +470,11 @@
             overflow: hidden;
         }
         
+        .player-card.overall-player-card {
+            grid-template-columns: auto 56px 180px 100px 1fr auto;
+            align-items: flex-start;
+        }
+        
         .player-card::before {
             content: '';
             position: absolute;
@@ -1164,6 +1169,25 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
             cursor: pointer;
         }
+
+        .mode-icon-display {
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            color: #CBD5E1;
+            transition: all 0.3s ease;
+        }
+
+        .tier-item:hover .mode-icon-display {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(6, 182, 212, 0.6);
+        }
         .tier-item:nth-child(1) { animation-delay: 0.08s; }
         .tier-item:nth-child(2) { animation-delay: 0.13s; }
         .tier-item:nth-child(3) { animation-delay: 0.18s; }
@@ -1236,6 +1260,197 @@
             font-size: 1.9rem;
             transform: scale(1.2) rotateZ(10deg);
             filter: drop-shadow(0 4px 12px rgba(6, 182, 212, 0.3));
+        }
+
+        /* ===== TABLE LAYOUT FOR MODES ===== */
+        .modes-table {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .table-column {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(12, 20, 35, 0.6));
+            border-radius: 1.2rem;
+            padding: 1.5rem 1rem;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            animation: slideUpFade 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+
+        .table-column:nth-child(1) { animation-delay: 0.1s; }
+        .table-column:nth-child(2) { animation-delay: 0.15s; }
+        .table-column:nth-child(3) { animation-delay: 0.2s; }
+        .table-column:nth-child(4) { animation-delay: 0.25s; }
+        .table-column:nth-child(5) { animation-delay: 0.3s; }
+        .table-column:nth-child(6) { animation-delay: 0.35s; }
+
+        .table-column-header {
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid rgba(6, 182, 212, 0.4);
+            background: linear-gradient(125deg, #06B6D4, #0EA5E9);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .table-column-players {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .player-in-table {
+            background: linear-gradient(135deg, rgba(30, 50, 80, 0.7), rgba(10, 30, 50, 0.5));
+            border: 1px solid rgba(6, 182, 212, 0.25);
+            padding: 0.8rem;
+            border-radius: 0.9rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: left;
+            animation: fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .player-in-table:hover {
+            transform: translateY(-8px) scale(1.05);
+            border-color: rgba(6, 182, 212, 0.6);
+            background: rgba(30, 50, 80, 0.85);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.25);
+        }
+
+        .player-table-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            flex-shrink: 0;
+        }
+
+        .player-table-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-table-name {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #CBD5E1;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .player-in-table:hover .player-table-name {
+            color: #06B6D4;
+        }
+
+        .player-table-tier-badge {
+            font-weight: 800;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        /* Overall Mode Styles */
+        .overall-player-card {
+            grid-template-columns: 50px 150px auto 1fr auto;
+            gap: 1.2rem;
+        }
+
+        .placement-badge {
+            font-weight: 900;
+            font-size: 1.4rem;
+            font-family: 'Courier New', monospace;
+            min-width: 50px;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .points-display {
+            font-weight: 800;
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(14, 165, 233, 0.1));
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: #06B6D4;
+            white-space: nowrap;
+        }
+
+        .modes-grid {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: nowrap;
+            align-items: center;
+            overflow-x: auto;
+            padding: 0.4rem 0;
+            grid-column: 1 / -1;
+        }
+
+        .mode-badge-with-tier {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        .mode-badge-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 6px;
+            color: #CBD5E1;
+            transition: all 0.3s ease;
+        }
+
+        .mode-badge-with-tier:hover .mode-badge-icon {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(6, 182, 212, 0.6);
+        }
+
+        .tier-oval-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 22px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 0.65rem;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tier-oval-badge:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
         }
 
         /* ===== LOADING SPINNER STYLES ===== */
@@ -1606,6 +1821,15 @@
                 padding: 0.9rem 1.5rem;
                 font-size: 0.9rem;
             }
+
+            .modes-table {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+
+            .table-column {
+                padding: 1rem 0.7rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -1754,6 +1978,51 @@
         "LT4": "fa-circle-notch",
         "LT5": "fa-circle-notch"
     };
+
+    // Tier Points Mapping for Overall
+    const TIER_POINTS = {
+        "NT": 0,
+        "LT5": 1,
+        "HT5": 2,
+        "LT4": 3,
+        "HT4": 4,
+        "LT3": 6,
+        "HT3": 10,
+        "LT2": 20,
+        "HT2": 30,
+        "LT1": 45,
+        "HT1": 60
+    };
+
+    // Tier Label Mapping (Tier 1-3 haben Metall-Namen)
+    const TIER_LABELS = {
+        "HT1": "GOLD",
+        "LT1": "GOLD",
+        "HT2": "SILVER",
+        "LT2": "SILVER",
+        "HT3": "BRONZE",
+        "LT3": "BRONZE",
+        "NT": "NT",
+        "HT4": "T4",
+        "LT4": "T4",
+        "HT5": "T5",
+        "LT5": "T5"
+    };
+
+    // Tier Color Info for UI (background, border, text and label)
+    const TIER_COLOR_INFO = {
+        "HT1": { bg: "linear-gradient(135deg,#FACC15,#EAB308)", border: "#F59E0B", text: "#0F172A", label: "GOLD" },
+        "LT1": { bg: "linear-gradient(135deg,#FDE68A,#FACC15)", border: "#D97706", text: "#0F172A", label: "GOLD" },
+        "HT2": { bg: "linear-gradient(135deg,#E5E7EB,#D1D5DB)", border: "#94A3B8", text: "#0F172A", label: "SILVER" },
+        "LT2": { bg: "linear-gradient(135deg,#CBD5E1,#E2E8F0)", border: "#64748B", text: "#0F172A", label: "SILVER" },
+        "HT3": { bg: "linear-gradient(135deg,#D97706,#F59E0B)", border: "#B45309", text: "#FFF", label: "BRONZE" },
+        "LT3": { bg: "linear-gradient(135deg,#C18C56,#D9A066)", border: "#A16207", text: "#FFF", label: "BRONZE" },
+        "NT": { bg: "linear-gradient(135deg,#475569,#64748B)", border: "#334155", text: "#F8FAFC", label: "NT" },
+        "HT4": { bg: "linear-gradient(135deg,#475569,#64748B)", border: "#334155", text: "#F8FAFC", label: "T4" },
+        "LT4": { bg: "linear-gradient(135deg,#334155,#475569)", border: "#1E293B", text: "#F8FAFC", label: "T4" },
+        "HT5": { bg: "linear-gradient(135deg,#475569,#64748B)", border: "#334155", text: "#F8FAFC", label: "T5" },
+        "LT5": { bg: "linear-gradient(135deg,#334155,#475569)", border: "#1E293B", text: "#F8FAFC", label: "T5" }
+    };
     
     
     // --- Global State ---
@@ -1767,6 +2036,17 @@
     // --- Helper: Avatar wie auf mctiers (minotar helm 3D? aber classic face)
     const getAvatarUrl = (name) => `https://minotar.net/helm/${encodeURIComponent(name)}/56.png`;
 
+    // Calculate total points for a player (all modes except overall)
+    function getPlayerTotalPoints(player) {
+        let totalPoints = 0;
+        const modes = GAME_MODES.filter(m => m.id !== "overall");
+        for (const mode of modes) {
+            const tier = player.tiers?.[mode.id] || "NT";
+            totalPoints += TIER_POINTS[tier] || 0;
+        }
+        return totalPoints;
+    }
+
     // --- Tier CSS Klasse dynamisch
     function getTierStyle(tier) {
         const mapping = {
@@ -1778,53 +2058,105 @@
     }
 
     // --- Filter + Rendering
-    function getFilteredPlayers() {
-        return Object.values(playersMap).filter(p => {
-            const matchName = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-            if (!matchName) return false;
-            if (tierFilter !== "all") {
-                const playerTier = p.tiers?.[currentMode] || "HT3";
-                if (playerTier !== tierFilter) return false;
-            }
-            return true;
-        }).sort((a,b) => a.name.localeCompare(b.name));
-    }
-
     function renderPlayers() {
         const container = document.getElementById("playersList");
         if (!container) return;
-        const filtered = getFilteredPlayers();
+
+        // Overall mode - show players sorted by total points
+        if (currentMode === "overall") {
+            renderOverallMode(container);
+        } else {
+            // Other modes - show table with tier columns
+            renderModeTable(container);
+        }
+    }
+
+    function renderOverallMode(container) {
+        let filtered = Object.values(playersMap);
+        
+        // Filter by search query
+        if (searchQuery) {
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        // Sort by total points (descending)
+        filtered.sort((a, b) => {
+            const pointsA = getPlayerTotalPoints(a);
+            const pointsB = getPlayerTotalPoints(b);
+            return pointsB - pointsA;
+        });
+
         if (filtered.length === 0) {
             container.innerHTML = `<div class="empty-modern"><i class="fas fa-user-slash"></i> Keine Spieler gefunden.</div>`;
             return;
         }
+
         let html = "";
-        for (const player of filtered) {
-            const currentTier = player.tiers?.[currentMode] || "NT";
-            const tierClass = getTierStyle(currentTier);
+        for (let idx = 0; idx < filtered.length; idx++) {
+            const player = filtered[idx];
+            const totalPoints = getPlayerTotalPoints(player);
+            const placement = idx + 1;
+            let placementLabel = `#${placement}`;
+            let placementColor = "#64748B"; // gray
+            
+            if (placement === 1) {
+                placementColor = "#FFD700"; // gold
+            } else if (placement === 2) {
+                placementColor = "#C0C0C0"; // silver
+            } else if (placement === 3) {
+                placementColor = "#CD7F32"; // bronze
+            }
+            
+            // Build modes with tier badges - sorted by tier level (high to low)
+            const modes = GAME_MODES.filter(m => m.id !== "overall");
+            let modesHtml = "";
+            
+            // Sort modes by tier level of this player
+            const modesWithTier = modes.map(mode => {
+                const tier = player.tiers?.[mode.id] || "NT";
+                const tierPoints = TIER_POINTS[tier] || 0;
+                return { mode, tier, tierPoints };
+            });
+            
+            // Sort descending by tier points (highest tier first)
+            modesWithTier.sort((a, b) => b.tierPoints - a.tierPoints);
+            
+            for (const item of modesWithTier) {
+                const { mode, tier } = item;
+                const colorInfo = TIER_COLOR_INFO[tier];
+                const tierLabel = TIER_LABELS[tier] || tier;
+                const modeIcon = mode.image ? `<img src="${mode.image}" alt="${mode.label}" style="height: 1.4rem; width: 1.4rem; object-fit: contain;">` : `<i class="fas ${mode.icon}" style="font-size: 1.4rem;"></i>`;
+                
+                modesHtml += `
+                    <div class="mode-badge-with-tier">
+                        <div class="mode-badge-icon">${modeIcon}</div>
+                        <div class="tier-oval-badge" style="background: ${colorInfo.bg}; border: 2px solid ${colorInfo.border};">
+                            <span style="color: ${colorInfo.text};">${tierLabel}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
             const notesDisplay = player.notes ? escapeHtml(player.notes) : "–";
             
             html += `
-                <div class="player-card" data-id="${player.id}">
+                <div class="player-card overall-player-card" data-id="${player.id}">
+                    <div class="placement-badge" style="color: ${placementColor};">${placementLabel}</div>
                     <div class="avatar">
                         <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
                     </div>
                     <div class="player-name">${escapeHtml(player.name)}</div>
-                    <div class="tier-modern ${tierClass}">${currentTier}</div>
+                    <div class="points-display">${totalPoints} Punkte</div>
+                    <div class="modes-grid">${modesHtml}</div>
                     <div class="player-notes">${notesDisplay}</div>
             `;
+            
             if (isAdminUser) {
-                let selectHtml = `<select class="admin-select" data-playerid="${player.id}" data-mode="${currentMode}">`;
-                for (let t of TIERS) {
-                    const selected = (t === currentTier) ? "selected" : "";
-                    selectHtml += `<option value="${t}" ${selected}>${t}</option>`;
-                }
-                selectHtml += `</select>`;
                 html += `
                     <div class="admin-actions">
-                        ${selectHtml}
                         <button class="admin-edit" data-player="${player.id}" data-name="${escapeHtml(player.name)}" title="Notizen bearbeiten"><i class="fas fa-edit"></i></button>
-                        <button class="admin-save" data-player="${player.id}" data-mode="${currentMode}"><i class="fas fa-check"></i></button>
                         <button class="admin-delete" data-player="${player.id}" data-name="${escapeHtml(player.name)}"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
@@ -1833,7 +2165,134 @@
         }
         container.innerHTML = html;
         if (isAdminUser) attachAdminListeners();
-        attachPlayerCardListeners();  // Neu: Modal-Listener
+        attachPlayerCardListeners();
+    }
+
+    function renderModeTable(container) {
+        let filtered = Object.values(playersMap);
+        
+        // Filter by search query
+        if (searchQuery) {
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        // Filter by tier if set
+        if (tierFilter !== "all") {
+            filtered = filtered.filter(p => {
+                const playerTier = p.tiers?.[currentMode] || "NT";
+                return playerTier === tierFilter;
+            });
+        }
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-modern"><i class="fas fa-user-slash"></i> Keine Spieler gefunden.</div>`;
+            return;
+        }
+
+        // Create table structure with columns: NT, LT5, HT5, LT4, HT4, LT3, HT3, LT2, HT2, LT1, HT1
+        // But we want: TIER 5, TIER 4, TIER 3, TIER 2, TIER 1, NT
+        const tierColumns = [
+            { label: "TIER 1", tiers: ["HT1", "LT1"] },
+            { label: "TIER 2", tiers: ["HT2", "LT2"] },
+            { label: "TIER 3", tiers: ["HT3", "LT3"] },
+            { label: "TIER 4", tiers: ["HT4", "LT4"] },
+            { label: "TIER 5", tiers: ["HT5", "LT5"] },
+            { label: "NT", tiers: ["NT"] }
+        ];
+
+        let html = '<div class="modes-table">';
+        
+        for (const column of tierColumns) {
+            const playersInColumn = filtered.filter(p => {
+                const tier = p.tiers?.[currentMode] || "NT";
+                return column.tiers.includes(tier);
+            });
+
+            // Sort: HT before LT
+            playersInColumn.sort((a, b) => {
+                const tierA = a.tiers?.[currentMode] || "NT";
+                const tierB = b.tiers?.[currentMode] || "NT";
+                
+                // Find index in column tiers - HT has lower index than LT
+                const idxA = column.tiers.indexOf(tierA);
+                const idxB = column.tiers.indexOf(tierB);
+                
+                if (idxA !== idxB) return idxA - idxB;
+                return a.name.localeCompare(b.name);
+            });
+
+            html += `<div class="table-column">`;
+            html += `<div class="table-column-header">${column.label}</div>`;
+            html += `<div class="table-column-players">`;
+            
+            if (playersInColumn.length === 0) {
+                html += `<div style="text-align: center; color: #64748B; font-size: 0.85rem; padding: 1.5rem 0;">Keine Spieler</div>`;
+            } else {
+                for (const player of playersInColumn) {
+                    const tier = player.tiers?.[currentMode] || "NT";
+                    const tierClass = getTierStyle(tier);
+                    const colorInfo = TIER_COLOR_INFO[tier];
+                const tierLabel = TIER_LABELS[tier] || tier;
+                
+                let tierBadgeHtml = `<div class="player-table-tier-badge ${tierClass}" style="background: ${colorInfo.bg}; border: 2px solid ${colorInfo.border}; color: ${colorInfo.text};">${tierLabel}</div>`;
+                    if (isAdminUser) {
+                        // Admin select dropdown
+                        let selectHtml = `<select class="admin-select" data-playerid="${player.id}" data-mode="${currentMode}" style="font-size: 0.7rem; padding: 0.3rem 0.5rem;">`;
+                        for (let t of TIERS) {
+                            const selected = (t === tier) ? "selected" : "";
+                            selectHtml += `<option value="${t}" ${selected}>${t}</option>`;
+                        }
+                        selectHtml += `</select>`;
+                        tierBadgeHtml = selectHtml;
+                    }
+                    
+                    html += `
+                        <div class="player-in-table" data-id="${player.id}">
+                            <div class="player-table-avatar">
+                                <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
+                            </div>
+                            <div class="player-table-name">${escapeHtml(player.name)}</div>
+                            ${tierBadgeHtml}
+                        </div>
+                    `;
+                }
+            }
+            
+            html += `</div></div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+        attachTablePlayerCardListeners();
+        if (isAdminUser) {
+            document.querySelectorAll(".admin-select[data-mode]").forEach(select => {
+                select.addEventListener("change", async (e) => {
+                    const newTier = e.currentTarget.value;
+                    const playerId = e.currentTarget.getAttribute("data-playerid");
+                    const mode = e.currentTarget.getAttribute("data-mode");
+                    if (!playerId || !mode) return;
+                    try {
+                        await set(ref(db, `players/${playerId}/tiers/${mode}`), newTier);
+                    } catch (err) {
+                        alert("Fehler beim Aktualisieren.");
+                        renderPlayers();
+                    }
+                });
+            });
+        }
+    }
+
+    function attachTablePlayerCardListeners() {
+        document.querySelectorAll(".player-in-table").forEach(card => {
+            card.addEventListener("click", (e) => {
+                const playerId = card.getAttribute("data-id");
+                if (playerId && playersMap[playerId]) {
+                    openPlayerModal(playersMap[playerId]);
+                }
+            });
+        });
     }
 
     function attachPlayerCardListeners() {
@@ -1879,18 +2338,32 @@
         setTimeout(() => {
             let tiersHtml = "";
             for (const mode of GAME_MODES) {
-                const tier = player.tiers?.[mode.id] || "NT";
-                const tierClass = getTierStyle(tier);
-                const icon = TIER_ICONS[tier] || "fa-circle";
-                const modeIcon = mode.image ? `<img src="${mode.image}" alt="${mode.label}" style="height: 1.2rem; width: 1.2rem; object-fit: contain;">` : `<i class="fas ${mode.icon}"></i>`;
+                if (mode.id === "overall") {
+                    // Show total points for overall mode
+                    const totalPoints = getPlayerTotalPoints(player);
+                    const modeIcon = `<i class="fas ${mode.icon}" style="font-size: 1.6rem;"></i>`;
+                    tiersHtml += `
+                        <div class="tier-item">
+                            <div class="tier-item-label">${mode.label}</div>
+                            <div class="tier-badge" style="background: linear-gradient(145deg, #06B6D4, #0EA5E9); color: #0F172A; box-shadow: 0 0 16px rgba(6, 182, 212, 0.5);">${totalPoints}</div>
+                            <div class="tier-icon">${modeIcon}</div>
+                        </div>
+                    `;
+                } else {
+                    const tier = player.tiers?.[mode.id] || "NT";
+                    const colorInfo = TIER_COLOR_INFO[tier];
+                    const modeIcon = mode.image ? `<img src="${mode.image}" alt="${mode.label}" style="height: 1.6rem; width: 1.6rem; object-fit: contain;">` : `<i class="fas ${mode.icon}" style="font-size: 1.6rem;"></i>`;
 
-                tiersHtml += `
-                    <div class="tier-item">
-                        <div class="tier-item-label">${mode.label}</div>
-                        <div class="tier-badge ${tierClass}">${tier}</div>
-                        <div class="tier-icon">${modeIcon}</div>
-                    </div>
-                `;
+                    tiersHtml += `
+                        <div class="tier-item">
+                            <div class="tier-item-label">${mode.label}</div>
+                            <div class="mode-icon-display">${modeIcon}</div>
+                            <div class="tier-oval-badge" style="background: ${colorInfo.bg}; border: 2px solid ${colorInfo.bg};">
+                                <span style="color: ${colorInfo.text}; font-size: 0.7rem; font-weight: 800;">${tier}</span>
+                            </div>
+                        </div>
+                    `;
+                }
             }
             modalTiers.innerHTML = tiersHtml;
         }, 500);
@@ -1915,6 +2388,28 @@
             btn.removeEventListener("click", handlePlayerDelete);
             btn.addEventListener("click", handlePlayerDelete);
         });
+        // Only add tier select listeners for non-overall modes
+        if (currentMode !== "overall") {
+            document.querySelectorAll(".admin-select").forEach(select => {
+                select.removeEventListener("change", handleTierSelect);
+                select.addEventListener("change", handleTierSelect);
+            });
+        }
+    }
+
+    async function handleTierSelect(e) {
+        const select = e.currentTarget;
+        const newTier = select.value;
+        const playerId = select.getAttribute("data-playerid");
+        const mode = select.getAttribute("data-mode");
+        if (!playerId || !mode) return;
+        
+        try {
+            await set(ref(db, `players/${playerId}/tiers/${mode}`), newTier);
+        } catch (err) {
+            alert("Fehler beim Aktualisieren.");
+            renderPlayers();
+        }
     }
 
     async function handleEditNotes(e) {
@@ -2033,12 +2528,12 @@
         const snapshot = await get(ref(db, "players"));
         if (snapshot.exists()) return;
         const samplePlayers = [
-            { name: "Technoblade", tiers: { overall:"HT1", vanilla:"HT1", uhc:"HT1", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT2", mace:"HT3" }, notes: "Top Player" },
-            { name: "Fruitberries", tiers: { overall:"HT1", vanilla:"HT1", uhc:"HT2", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT1", mace:"HT2" }, notes: "UHC Spezialist" },
-            { name: "Dream", tiers: { overall:"HT3", vanilla:"HT4", uhc:"LT1", pot:"HT2", nethop:"HT3", smp:"HT4", sword:"HT3", axe:"LT2", mace:"LT3" }, notes: "" },
-            { name: "Purpled", tiers: { overall:"HT2", vanilla:"HT3", uhc:"HT3", pot:"HT2", nethop:"HT2", smp:"HT3", sword:"HT2", axe:"HT4", mace:"LT1" }, notes: "Aufsteiger" },
-            { name: "Illumina", tiers: { overall:"HT1", vanilla:"HT1", uhc:"HT2", pot:"HT3", nethop:"HT2", smp:"HT2", sword:"HT1", axe:"HT2", mace:"HT3" }, notes: "" },
-            { name: "NewPlayer", tiers: { overall:"NT", vanilla:"NT", uhc:"NT", pot:"NT", nethop:"NT", smp:"NT", sword:"NT", axe:"NT", mace:"NT" }, notes: "Zu bewerten" }
+            { name: "Technoblade", tiers: { vanilla:"HT1", uhc:"HT1", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT2", mace:"HT3" }, notes: "Top Player" },
+            { name: "Fruitberries", tiers: { vanilla:"HT1", uhc:"HT2", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT1", mace:"HT2" }, notes: "UHC Spezialist" },
+            { name: "Dream", tiers: { vanilla:"HT4", uhc:"LT1", pot:"HT2", nethop:"HT3", smp:"HT4", sword:"HT3", axe:"LT2", mace:"LT3" }, notes: "" },
+            { name: "Purpled", tiers: { vanilla:"HT3", uhc:"HT3", pot:"HT2", nethop:"HT2", smp:"HT3", sword:"HT2", axe:"HT4", mace:"LT1" }, notes: "Aufsteiger" },
+            { name: "Illumina", tiers: { vanilla:"HT1", uhc:"HT2", pot:"HT3", nethop:"HT2", smp:"HT2", sword:"HT1", axe:"HT2", mace:"HT3" }, notes: "" },
+            { name: "NewPlayer", tiers: { vanilla:"NT", uhc:"NT", pot:"NT", nethop:"NT", smp:"NT", sword:"NT", axe:"NT", mace:"NT" }, notes: "Zu bewerten" }
         ];
         for (const p of samplePlayers) {
             const id = p.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -2056,7 +2551,12 @@
                 for (const [id, val] of Object.entries(data)) {
                     if (val && typeof val === 'object') {
                         let tiers = val.tiers || {};
-                        for (const mode of GAME_MODES) if (!tiers[mode.id]) tiers[mode.id] = "NT";
+                        // Only set default NT for non-overall modes
+                        for (const mode of GAME_MODES) {
+                            if (mode.id !== "overall" && !tiers[mode.id]) {
+                                tiers[mode.id] = "NT";
+                            }
+                        }
                         newMap[id] = { id, name: val.name || "Unbekannt", tiers, notes: val.notes || "" };
                     }
                 }
@@ -2084,6 +2584,8 @@
                 currentMode = mode.id;
                 document.querySelectorAll(".mode-btn-modern").forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
+                // Update filter visibility
+                updateFilterVisibility();
                 renderPlayers();
             });
             modesContainer.appendChild(btn);
@@ -2108,12 +2610,22 @@
         });
     }
 
+    function updateFilterVisibility() {
+        const tierSelect = document.getElementById("tierFilterGlobal");
+        if (currentMode === "overall") {
+            tierSelect.style.display = "none";
+            tierFilter = "all"; // Reset filter
+        } else {
+            tierSelect.style.display = "block";
+        }
+    }
+
     // --- Auth UI & Admin Bereich ---
     function updateAuthUI(user) {
         const authWidget = document.getElementById("authWidget");
         const adminZone = document.getElementById("adminZone");
         const statusSpan = document.getElementById("statusBadge");
-        if (user && user.email === "tomy.blasbichler@gmail.com") {
+        if (user && (user.email === "tomy.blasbichler@gmail.com" || user.email === "kilianm1234567@gmail.com")) {
             isAdminUser = true;
             authWidget.innerHTML = `<span style="padding-left:0.5rem;"><i class="fas fa-crown"></i> ${user.email}</span><button id="signOutBtn" class="admin-delete" style="background:#475569; margin-left:0.5rem;">Logout</button>`;
             adminZone.style.display = "block";
@@ -2156,6 +2668,7 @@
     // --- Start ---
     async function init() {
         buildUI();
+        updateFilterVisibility();
         await seedSampleData();
         subscribePlayers();
         onAuthStateChanged(auth, (user) => {

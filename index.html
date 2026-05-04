@@ -271,8 +271,9 @@
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: inline-flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: #CBD5E1;
             position: relative;
             overflow: hidden;
@@ -548,6 +549,7 @@
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             grid-column: 1;
             border: 1.5px solid rgba(6, 182, 212, 0.3);
+            flex-shrink: 0;
         }
         
         .avatar img {
@@ -576,9 +578,10 @@
             background-clip: text;
             color: transparent;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            order: 3;
+            order: 4;
             min-width: 120px;
             flex: 0 1 auto;
+            white-space: nowrap;
         }
         
         .player-card:hover .player-name {
@@ -1538,96 +1541,199 @@
 
         /* Overall Mode Styles */
         .overall-player-card {
-            grid-template-columns: 50px 150px auto 1fr auto;
-            gap: 1.2rem;
+            grid-template-columns: auto auto minmax(180px, 1.5fr) auto minmax(280px, 2.5fr) auto;
+            gap: 1.5rem;
+            align-items: center;
         }
 
-        .placement-badge {
+        .overall-player-card .placement-badge {
+            grid-column: 1;
             font-weight: 900;
             font-size: 1.6rem;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            min-width: 60px;
-            text-align: center;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-            letter-spacing: 0.2px;
-        }
-
-        .points-display {
-            font-weight: 900;
-            font-size: 1.1rem;
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 165, 233, 0.2));
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            border: 2px solid rgba(6, 182, 212, 0.5);
-            color: #06B6D4;
-            white-space: nowrap;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            letter-spacing: 0.3px;
-            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            order: 5;
-            flex-shrink: 0;
-        }
-
-        .modes-grid {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
-            order: 4;
-            width: 100%;
-            min-height: 60px;
-        }
-
-        .mode-badge-with-tier {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.4rem;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .mode-badge-with-tier:hover {
-            transform: scale(1.12);
-        }
-
-        .mode-badge-icon {
-            width: 32px;
-            height: 32px;
+            min-width: 52px;
+            min-height: 52px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 6px;
-            color: #CBD5E1;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1.2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            letter-spacing: 0.2px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .mode-badge-with-tier:hover .mode-badge-icon {
-            background: rgba(30, 41, 59, 0.9);
-            border-color: rgba(6, 182, 212, 0.6);
+        .overall-player-card .avatar {
+            grid-column: 2;
+            margin: 0;
+        }
+
+        .overall-player-card .player-details {
+            grid-column: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            justify-content: center;
+        }
+
+        .overall-player-card .player-name {
+            margin: 0;
+            font-weight: 900;
+            font-size: 1.15rem;
+            letter-spacing: -0.3px;
+            color: #F8FAFC;
+        }
+
+        .overall-player-card .player-stats {
+            font-size: 0.92rem;
+            color: #AFC4DB;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .overall-player-card .region-badge {
+            grid-column: 4;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            letter-spacing: 0.18px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            min-width: 70px;
+        }
+
+        .overall-player-card .region-eu {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(34, 197, 94, 0.08));
+            border-color: rgba(34, 197, 94, 0.45);
+            color: #D8F7E5;
+        }
+
+        .overall-player-card .region-na {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.08));
+            border-color: rgba(239, 68, 68, 0.45);
+            color: #FDE2E2;
+        }
+
+        .overall-player-card .region-default {
+            background: rgba(100, 116, 139, 0.15);
+            border-color: rgba(148, 163, 184, 0.35);
+            color: #E2E8F0;
+        }
+
+        .overall-player-card .modes-grid {
+            grid-column: 5;
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            align-items: center;
+            justify-content: flex-start;
+            width: auto;
+            min-height: 52px;
+            padding: 0.2rem 0.4rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .overall-player-card .modes-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mode-badge-with-tier {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.12rem;
+            min-width: 68px;
+            padding: 0.5rem 0.55rem;
+            border-radius: 1.2rem;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(6, 182, 212, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .mode-badge-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 41, 59, 0.65);
+            border: 1.5px solid rgba(6, 182, 212, 0.35);
+            border-radius: 50%;
+            color: #CBD5E1;
+            transition: all 0.3s ease;
+            font-size: 1rem;
         }
 
         .tier-oval-badge {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 38px;
-            height: 26px;
-            border-radius: 50%;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
             font-weight: 900;
-            font-size: 0.7rem;
+            font-size: 0.62rem;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
             transition: all 0.3s ease;
             cursor: pointer;
-            letter-spacing: 0.2px;
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.08px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        .overall-player-card .mode-badge-with-tier .tier-oval-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: auto;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+
+        .overall-player-card .player-notes {
+            grid-column: 6;
+            display: none;
+        }
+
+        .overall-player-card .admin-actions {
+            grid-column: 6;
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .mode-badge-with-tier {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            min-width: 70px;
+            padding: 0.45rem 0.55rem;
+            border-radius: 1.2rem;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(6, 182, 212, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .mode-badge-with-tier:hover .mode-badge-icon {
+            background: rgba(30, 41, 59, 0.95);
+            border-color: rgba(6, 182, 212, 0.7);
+            box-shadow: 0 0 14px rgba(6, 182, 212, 0.25);
         }
 
         .tier-oval-badge:hover {
-            transform: scale(1.2);
+            transform: scale(1.05);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
         }
 
@@ -1920,6 +2026,36 @@
                 padding: 0.9rem 1.2rem;
                 border-radius: 0.8rem;
             }
+
+            .overall-player-card {
+                grid-template-columns: auto auto minmax(120px, 1fr) auto;
+                gap: 0.8rem;
+            }
+
+            .overall-player-card .player-details {
+                grid-column: 3;
+            }
+
+            .overall-player-card .region-badge {
+                grid-column: 4;
+            }
+
+            .overall-player-card .player-name {
+                grid-column: 3;
+            }
+
+            .modes-grid {
+                grid-column: 1 / -1;
+                border-left: none;
+                border-right: none;
+                padding: 0.8rem 0;
+                gap: 0.8rem;
+                order: 4;
+            }
+
+            .points-display {
+                order: 5;
+            }
             
             .player-name {
                 font-size: 0.9rem;
@@ -2092,6 +2228,8 @@
     <div class="modal-content">
         <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
         <div class="modal-header">
+            <div id="modalPlayerPosition" style="font-size: 1rem; color: #94A3B8; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.1em;"></div>
+            <div id="modalPlayerPoints" style="font-size: 1rem; color: #06B6D4; margin-bottom: 1rem; font-weight: 800; letter-spacing: 0.05em;"></div>
             <h2 id="modalPlayerName"></h2>
         </div>
         <div class="skin-container">
@@ -2189,17 +2327,17 @@
 
     // Tier Color Info for UI - Moderne, lebendige Farben
     const TIER_COLOR_INFO = {
-        "HT1": { bg: "linear-gradient(135deg, #FF6B9D, #FF1493)", border: "#FF1493", text: "#FFF", label: "HT1" },
-        "LT1": { bg: "linear-gradient(135deg, #FF69B4, #FF1493)", border: "#FF1493", text: "#FFF", label: "LT1" },
-        "HT2": { bg: "linear-gradient(135deg, #FF9500, #FF6D00)", border: "#FF6D00", text: "#FFF", label: "HT2" },
-        "LT2": { bg: "linear-gradient(135deg, #FFB74D, #FF9500)", border: "#FF9500", text: "#FFF", label: "LT2" },
-        "HT3": { bg: "linear-gradient(135deg, #26C6DA, #00BCD4)", border: "#00BCD4", text: "#FFF", label: "HT3" },
-        "LT3": { bg: "linear-gradient(135deg, #4DD0E1, #26C6DA)", border: "#26C6DA", text: "#FFF", label: "LT3" },
+        "HT1": { bg: "linear-gradient(135deg, #FBBF24, #F59E0B)", border: "#F59E0B", text: "#FFF", label: "HT1" },
+        "LT1": { bg: "linear-gradient(135deg, #FBBF24, #D97706)", border: "#D97706", text: "#FFF", label: "LT1" },
+        "HT2": { bg: "linear-gradient(135deg, #E5E7EB, #9CA3AF)", border: "#9CA3AF", text: "#111827", label: "HT2" },
+        "LT2": { bg: "linear-gradient(135deg, #F3F4F6, #D1D5DB)", border: "#9CA3AF", text: "#111827", label: "LT2" },
+        "HT3": { bg: "linear-gradient(135deg, #22D3EE, #06B6D4)", border: "#06B6D4", text: "#FFF", label: "HT3" },
+        "LT3": { bg: "linear-gradient(135deg, #67E8F9, #22D3EE)", border: "#22D3EE", text: "#111827", label: "LT3" },
         "NT": { bg: "linear-gradient(135deg, #64748B, #475569)", border: "#334155", text: "#F8FAFC", label: "NT" },
-        "HT4": { bg: "linear-gradient(135deg, #7C3AED, #6D28D9)", border: "#6D28D9", text: "#FFF", label: "HT4" },
-        "LT4": { bg: "linear-gradient(135deg, #9F7AEA, #7C3AED)", border: "#7C3AED", text: "#FFF", label: "LT4" },
-        "HT5": { bg: "linear-gradient(135deg, #EC4899, #BE185D)", border: "#BE185D", text: "#FFF", label: "HT5" },
-        "LT5": { bg: "linear-gradient(135deg, #F472B6, #EC4899)", border: "#EC4899", text: "#FFF", label: "LT5" }
+        "HT4": { bg: "linear-gradient(135deg, #A78BFA, #7C3AED)", border: "#7C3AED", text: "#FFF", label: "HT4" },
+        "LT4": { bg: "linear-gradient(135deg, #C4B5FD, #A78BFA)", border: "#A78BFA", text: "#111827", label: "LT4" },
+        "HT5": { bg: "linear-gradient(135deg, #F472B6, #EC4899)", border: "#EC4899", text: "#FFF", label: "HT5" },
+        "LT5": { bg: "linear-gradient(135deg, #F9A8D4, #F472B6)", border: "#F472B6", text: "#111827", label: "LT5" }
     };
     
     
@@ -2287,7 +2425,7 @@
                 placementColor = "#CD7F32"; // bronze
             }
             
-            // Build modes with tier badges - sorted by tier level (high to low)
+        // Build modes with tier badges - sorted by tier level (high to low)
             const modes = GAME_MODES.filter(m => m.id !== "overall");
             let modesHtml = "";
             
@@ -2318,15 +2456,21 @@
             }
             
             const notesDisplay = player.notes ? escapeHtml(player.notes) : "–";
-            
+            const regionValue = (player.region || "NA").toUpperCase();
+            const regionClass = regionValue === "EU" ? "region-eu" : regionValue === "NA" ? "region-na" : "region-default";
+            const regionLabel = regionValue === "EU" || regionValue === "NA" ? regionValue : escapeHtml(regionValue);
+
             html += `
                 <div class="player-card overall-player-card" data-id="${player.id}">
                     <div class="placement-badge" style="color: ${placementColor};">${placementLabel}</div>
                     <div class="avatar">
                         <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
                     </div>
-                    <div class="player-name">${escapeHtml(player.name)}</div>
-                    <div class="points-display">${totalPoints} Punkte</div>
+                    <div class="player-details">
+                        <div class="player-name">${escapeHtml(player.name)}</div>
+                        <div class="player-stats">${totalPoints} Punkte</div>
+                    </div>
+                    <div class="region-badge ${regionClass}">${regionLabel}</div>
                     <div class="modes-grid">${modesHtml}</div>
                     <div class="player-notes">${notesDisplay}</div>
             `;
@@ -2489,13 +2633,29 @@
     function openPlayerModal(player) {
         const modal = document.getElementById("playerModal");
         const modalName = document.getElementById("modalPlayerName");
+        const modalPosition = document.getElementById("modalPlayerPosition");
+        const modalPoints = document.getElementById("modalPlayerPoints");
         const modalSkin = document.getElementById("modalSkinImage");
         const modalNameMc = document.getElementById("modalNameMcLink");
         const modalTiers = document.getElementById("modalTiersGrid");
 
+        // Calculate player's overall position and total points
+        let allPlayers = Object.values(playersMap);
+        allPlayers.sort((a, b) => {
+            const pointsA = getPlayerTotalPoints(a);
+            const pointsB = getPlayerTotalPoints(b);
+            return pointsB - pointsA;
+        });
+        
+        const playerIndex = allPlayers.findIndex(p => p.id === player.id);
+        const position = playerIndex >= 0 ? playerIndex + 1 : 0;
+        const totalPoints = getPlayerTotalPoints(player);
+
         // Modal öffnen mit Loading-State
         modal.classList.add("active");
         modalName.textContent = player.name;
+        modalPosition.textContent = `#${position}`;
+        modalPoints.textContent = `${totalPoints} Punkte`;
         modalTiers.innerHTML = `<div class="loading-container" style="grid-column: 1/-1; min-height: 120px;"><div class="spinner-wrapper"><div class="spinner-glow"></div><span>Lade Ränge...</span></div></div>`;
         modalSkin.src = "";
 
@@ -2518,7 +2678,6 @@
             for (const mode of GAME_MODES) {
                 if (mode.id === "overall") {
                     // Show total points for overall mode
-                    const totalPoints = getPlayerTotalPoints(player);
                     const modeIcon = `<i class="fas ${mode.icon}" style="font-size: 1.6rem;"></i>`;
                     tiersHtml += `
                         <div class="tier-item">

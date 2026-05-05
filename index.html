@@ -1649,17 +1649,22 @@
             align-items: center;
             justify-content: center;
             gap: 0.12rem;
-            min-width: 68px;
-            padding: 0.5rem 0.55rem;
-            border-radius: 1.2rem;
+            min-width: 58px;
+            padding: 0.35rem 0.45rem;
+            border-radius: 1rem;
             background: rgba(15, 23, 42, 0.55);
             border: 1px solid rgba(6, 182, 212, 0.14);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
+        .overall-player-card .mode-badge-with-tier {
+            min-width: 68px;
+            padding: 0.4rem 0.5rem;
+        }
+
         .mode-badge-icon {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1668,7 +1673,13 @@
             border-radius: 50%;
             color: #CBD5E1;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .overall-player-card .mode-badge-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.65rem;
         }
 
         .tier-oval-badge {
@@ -1693,11 +1704,59 @@
             align-items: center;
             justify-content: center;
             min-width: auto;
-            padding: 0.35rem 0.85rem;
+            padding: 0.22rem 0.55rem;
             border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+            font-size: 0.52rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-1 .mode-badge-icon {
+            border-color: rgba(251, 191, 36, 0.7);
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.2);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-2 .mode-badge-icon {
+            border-color: rgba(226, 232, 240, 0.75);
+            box-shadow: 0 0 8px rgba(226, 232, 240, 0.2);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-3 .mode-badge-icon {
+            border-color: rgba(205, 127, 50, 0.75);
+            box-shadow: 0 0 8px rgba(205, 127, 50, 0.2);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-1 .tier-oval-badge {
+            background: rgba(251, 191, 36, 0.18);
+            border-color: rgba(251, 191, 36, 0.45);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-2 .tier-oval-badge {
+            background: rgba(226, 232, 240, 0.18);
+            border-color: rgba(148, 163, 184, 0.45);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-3 .tier-oval-badge {
+            background: rgba(205, 127, 50, 0.18);
+            border-color: rgba(205, 127, 50, 0.45);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-1 .tier-oval-badge span {
+            color: #FBBF24 !important;
+            text-shadow: 0 0 3px rgba(17, 24, 39, 0.6), 0 1px 2px rgba(17, 24, 39, 0.4);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-2 .tier-oval-badge span {
+            color: #E5E7EB !important;
+            text-shadow: 0 0 3px rgba(15, 23, 42, 0.65), 0 1px 2px rgba(15, 23, 42, 0.35);
+        }
+
+        .overall-player-card .mode-badge-with-tier.tier-3 .tier-oval-badge span {
+            color: #FDBA74 !important;
+            text-shadow: 0 0 3px rgba(17, 24, 39, 0.6), 0 1px 2px rgba(17, 24, 39, 0.35);
         }
 
         .overall-player-card .player-notes {
@@ -1712,19 +1771,6 @@
             align-items: center;
         }
 
-        .mode-badge-with-tier {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0.35rem;
-            min-width: 70px;
-            padding: 0.45rem 0.55rem;
-            border-radius: 1.2rem;
-            background: rgba(15, 23, 42, 0.55);
-            border: 1px solid rgba(6, 182, 212, 0.14);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-        }
 
         .mode-badge-with-tier:hover .mode-badge-icon {
             background: rgba(30, 41, 59, 0.95);
@@ -2327,7 +2373,7 @@
 
     // Tier Color Info for UI - Moderne, lebendige Farben
     const TIER_COLOR_INFO = {
-        "HT1": { bg: "linear-gradient(135deg, #FBBF24, #F59E0B)", border: "#F59E0B", text: "#FFF", label: "HT1" },
+        "HT1": { bg: "linear-gradient(135deg, #FBBF24, #F59E0B)", border: "#F59E0B", text: "#FBBF24", label: "HT1" },
         "LT1": { bg: "linear-gradient(135deg, #FBBF24, #D97706)", border: "#D97706", text: "#FFF", label: "LT1" },
         "HT2": { bg: "linear-gradient(135deg, #E5E7EB, #9CA3AF)", border: "#9CA3AF", text: "#111827", label: "HT2" },
         "LT2": { bg: "linear-gradient(135deg, #F3F4F6, #D1D5DB)", border: "#9CA3AF", text: "#111827", label: "LT2" },
@@ -2443,12 +2489,14 @@
                 const { mode, tier } = item;
                 const colorInfo = TIER_COLOR_INFO[tier];
                 const tierLabel = TIER_LABELS[tier] || tier;
+                const tierGroup = tier.endsWith("1") ? "tier-1" : tier.endsWith("2") ? "tier-2" : tier.endsWith("3") ? "tier-3" : "tier-default";
                 const modeIcon = mode.image ? `<img src="${mode.image}" alt="${mode.label}" style="height: 1.4rem; width: 1.4rem; object-fit: contain;">` : `<i class="fas ${mode.icon}" style="font-size: 1.4rem;"></i>`;
+                const badgeStyle = currentMode === "overall" ? "" : `background: ${colorInfo.bg}; border: 2px solid ${colorInfo.border};`;
                 
                 modesHtml += `
-                    <div class="mode-badge-with-tier">
+                    <div class="mode-badge-with-tier ${tierGroup}">
                         <div class="mode-badge-icon">${modeIcon}</div>
-                        <div class="tier-oval-badge" style="background: ${colorInfo.bg}; border: 2px solid ${colorInfo.border};">
+                        <div class="tier-oval-badge tier-${tier}" style="${badgeStyle}">
                             <span style="color: ${colorInfo.text};">${tierLabel}</span>
                         </div>
                     </div>

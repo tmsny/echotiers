@@ -1,11 +1,12 @@
-# Table & Modal Tier Styling Updates
+# Enter Key Support for Region Inputs
 
 ## Steps
-- [x] 1. CSS: Horizontal 6-col .modes-table + smaller columns
-- [x] 2. CSS: .table-column-header styled as overall tier badges
-- [x] 3. JS/CSS: Profile modal tiers match overall .mode-badge-with-tier
-- [x] 4. Responsive mobile layout
-- [x] 5. Test layout & update TODO.md
+- [x] 1. Update TODO.md with new task
+- [x] 2. Add handleRegionEnterSave() JS function
+- [x] 3. Attach keyup Enter listener in attachAdminListeners()
+- [x] 4. Test changes (change region + Enter)
+- [x] 5. Update TODO.md mark complete
+- [x] 6. Git commit changes
 
-**Progress:** Plan approved - ready for implementation.
+**Progress:** ✅ Complete
 

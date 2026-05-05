@@ -2808,7 +2808,7 @@
     }
     
 
-    function attachAdminListeners() {
+function attachAdminListeners() {
         document.querySelectorAll(".admin-save").forEach(btn => {
             btn.removeEventListener("click", handleTierSave);
             btn.addEventListener("click", handleTierSave);
@@ -2825,6 +2825,11 @@
         document.querySelectorAll(".admin-select:not([data-mode])").forEach(select => {
             select.removeEventListener("change", handleRegionChange);
             select.addEventListener("change", handleRegionChange);
+        });
+        // Region input Enter listeners (NEW)
+        document.querySelectorAll(".admin-region-input").forEach(input => {
+            input.removeEventListener("keyup", handleRegionEnterSave);
+            input.addEventListener("keyup", handleRegionEnterSave);
         });
         // Tier select listeners for non-overall modes
         if (currentMode !== "overall") {
@@ -2927,7 +2932,7 @@
         }
     }
 
-    async function handlePlayerDelete(e) {
+async function handlePlayerDelete(e) {
         const btn = e.currentTarget;
         const playerId = btn.getAttribute("data-player");
         const playerName = btn.getAttribute("data-name");
@@ -2952,6 +2957,45 @@
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
+        }
+    }
+
+    async function handleRegionEnterSave(e) {
+        const input = e.currentTarget;
+        if (e.key !== 'Enter') return;
+        
+        const newRegion = input.value.trim();
+        if (!newRegion) {
+            input.value = '';
+            return;
+        }
+        
+        const playerId = input.getAttribute('data-playerid');
+        if (!playerId) return;
+        
+        // Show loading spinner in input
+        const originalValue = input.value;
+        const originalStyle = input.style.background;
+        input.value = '';
+        input.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 1.5px; display: inline-block; vertical-align: middle;"></div> Speichern...';
+        input.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(34, 197, 94, 0.15))';
+        input.disabled = true;
+        
+        try {
+            await set(ref(db, `players/${playerId}/region`), newRegion);
+            input.value = newRegion.toUpperCase();
+            input.innerHTML = newRegion.toUpperCase() + ' <i class="fas fa-check" style="color: #10B981; margin-left: 4px; font-size: 0.7rem;"></i>';
+            setTimeout(() => {
+                input.innerHTML = '';
+                input.value = newRegion.toUpperCase();
+                input.style.background = originalStyle;
+                input.disabled = false;
+            }, 1200);
+        } catch (err) {
+            alert('Fehler beim Speichern der Region: ' + err.message);
+            input.value = originalValue;
+            input.style.background = originalStyle;
+            input.disabled = false;
         }
     }
 

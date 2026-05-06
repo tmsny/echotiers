@@ -1,12 +1,8 @@
-# Enter Key Support for Region Inputs
+#  TODO
 
-## Steps
-- [x] 1. Update TODO.md with new task
-- [x] 2. Add handleRegionEnterSave() JS function
-- [x] 3. Attach keyup Enter listener in attachAdminListeners()
-- [x] 4. Test changes (change region + Enter)
-- [x] 5. Update TODO.md mark complete
-- [x] 6. Git commit changes
-
-**Progress:** ✅ Complete
+- [ ] 1. Admin-konfigurierbare Regionen-Farblogik einbauen (kommagetrennte NA-Regionen)
+- [ ] 2. Rendering Overall: NA -> rot, sonst grün (keine hardcodierten region-eu/region-na Vergleiche mehr)
+- [ ] 3. Rendering Modal: gleiche Logik
+- [ ] 4. Admin UI für „NA-Regionen“ hinzufügen und persistieren (lokal im JS/DB)
+- [ ] 5. Test/Manuell prüfen: Admin setzt NA-Region, UI aktualisiert korrekt
 

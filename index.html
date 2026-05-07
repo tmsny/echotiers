@@ -1391,8 +1391,9 @@
 
 
 
-        .table-column-header {
+.table-column-header {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 1rem;
@@ -1467,6 +1468,7 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.06);
             position: relative;
             overflow: hidden;
+            /* Badge-Feld verschwindet; das Farbfeld kommt über inline-style (fieldBg/fieldBorder) */
         }
 
         .player-in-table::before {
@@ -1529,16 +1531,22 @@
 
 
         .player-table-name {
-            font-weight: 700;
+            font-weight: 800;
             font-size: 0.72rem;
-            color: #CBD5E1;
+            color: #E2E8F0;
+
             transition: all 0.3s ease;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            overflow: visible;
+            text-overflow: clip;
+            white-space: nowrap; /* horizontal */
+            word-break: normal;
             flex: 1;
             min-width: 0;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .player-in-table {
+            flex-direction: row; /* Name horizontal */
         }
 
         .player-in-table:hover .player-table-name {
@@ -1575,12 +1583,14 @@
         .player-table-tier-badge.tier-LT5 { background: rgba(249, 168, 212, 0.18) !important; border-color: rgba(244, 114, 182, 0.45) !important; color: white !important; text-shadow: 0 0 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.4) !important; }
         .player-table-tier-badge.tier-NT { background: rgba(100, 116, 139, 0.18) !important; border-color: rgba(100, 116, 139, 0.45) !important; color: #F8FAFC !important; text-shadow: none !important; }
         
-.player-table-tier-badge {
+        .player-table-tier-badge {
             font-weight: 900;
             font-size: 0.52rem; /* kleiner, damit Name mehr Platz hat */
             padding: 0.35rem 0.7rem;
             border-radius: 7px;
             letter-spacing: 0.28px;
+            /* Feste Größe/Box für bessere Lesbarkeit */
+            white-space: nowrap;
         }
 
         /* HT stärker einfärben als LT (HT = gold/silver/bronze/..., LT = deutlich gedämpft) */
@@ -1609,7 +1619,7 @@
         }
 
 
-        /* Namen bei den 8 Modi/Tier-Spalten sichtbar machen */
+        /* Namen bei den 8 Modi/Tier-Spalten sichtbar machen (horizontal) */
         .modes-grid .player-table-name,
         .player-in-table .player-table-name {
             display: block !important;
@@ -1620,6 +1630,7 @@
             font-size: 0.62rem;
             line-height: 1.1;
             text-align: left;
+            white-space: nowrap;
         }
 
         /* Overall Mode Styles */
@@ -2726,16 +2737,23 @@
                 return column.tiers.includes(tier);
             });
 
-            // Sort: HT before LT
+            // Sort: HT first (above), then LT (below) to make HT vs LT clearly readable
             playersInColumn.sort((a, b) => {
                 const tierA = a.tiers?.[currentMode] || "NT";
                 const tierB = b.tiers?.[currentMode] || "NT";
-                
-                // Find index in column tiers - HT has lower index than LT
-                const idxA = column.tiers.indexOf(tierA);
-                const idxB = column.tiers.indexOf(tierB);
-                
-                if (idxA !== idxB) return idxA - idxB;
+
+                const isHT_A = tierA.startsWith("HT");
+                const isHT_B = tierB.startsWith("HT");
+
+                if (isHT_A !== isHT_B) return isHT_A ? -1 : 1; // HT above LT
+
+                // Same side (HT or LT): keep deterministic order
+                if (tierA !== tierB) {
+                    const idxA = column.tiers.indexOf(tierA);
+                    const idxB = column.tiers.indexOf(tierB);
+                    if (idxA !== idxB) return idxA - idxB;
+                }
+
                 return a.name.localeCompare(b.name);
             });
 
@@ -2750,9 +2768,21 @@
                     const tier = player.tiers?.[currentMode] || "NT";
                     const tierClass = getTierStyle(tier);
                     const colorInfo = TIER_COLOR_INFO[tier];
-                const tierLabel = TIER_LABELS[tier] || tier;
-                
-                let tierBadgeHtml = `<div class="player-table-tier-badge ${tierClass}" style="background: ${colorInfo.bg}; border: 2px solid ${colorInfo.border}; color: ${colorInfo.text};">${tierLabel}</div>`;
+                    
+                    // Badge anzeigen wir nicht mehr (HT/LT soll über das umgebende Feld sichtbar sein)
+                    // const tierLabel = TIER_LABELS[tier] || tier;
+                    
+                    let tierBadgeHtml = '';
+                    // (Admin bleibt nutzbar über Tier-Select unten im Feld, falls nötig)
+                    
+                    const isHT = tier.startsWith('HT');
+                    // HT weniger stark gefüllt (gedämpfter)
+                    // Weniger kraftvoll gefüllt: HT/LT wie „overall tiers“ eher kontrastarm
+                    const fieldBg = isHT
+                        ? `linear-gradient(135deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03)), ${colorInfo.bg}`
+                        : `linear-gradient(135deg, rgba(148,163,184,0.12), rgba(71,85,105,0.08))`;
+                    const fieldBorder = isHT ? 'rgba(6, 182, 212, 0.18)' : 'rgba(148, 163, 184, 0.22)';
+                    const fieldText = isHT ? '#F8FAFC' : '#E5E7EB';
                     if (isAdminUser) {
                         // Admin select dropdown
                         let selectHtml = `<select class="admin-select" data-playerid="${player.id}" data-mode="${currentMode}" style="font-size: 0.7rem; padding: 0.3rem 0.5rem;">`;
@@ -2765,11 +2795,11 @@
                     }
                     
             html += `
-                        <div class="player-in-table" data-id="${player.id}">
+                        <div class="player-in-table" data-id="${player.id}" style="background: ${fieldBg}; border-color: ${fieldBorder};">
                             <div class="player-table-avatar">
                                 <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
                             </div>
-                            <div class="player-table-name">${escapeHtml(player.name)}</div>
+                            <div class="player-table-name" style="color: ${fieldText};">${escapeHtml(player.name)}</div>
                             ${tierBadgeHtml}
                             <div style="width: 56px;" aria-hidden="true"></div>
                             ${isAdminUser ? `

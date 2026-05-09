@@ -2782,20 +2782,40 @@
                     let tierBadgeHtml = '';
                     // (Admin bleibt nutzbar über Tier-Select unten im Feld, falls nötig)
                     
-const isHT = tier.startsWith('HT');
-                    const filledBadge = isHT && !isAdminUser;
+                    const isHT = tier.startsWith('HT');
 
-                    // Kein Farbfilling für die 8 Modi-Spalten (HT/LT wie LT1-5 aussehen)
-                    // => gleiche neutrale Füllung wie LT
-                    const fieldBg = `linear-gradient(135deg, rgba(148,163,184,0.12), rgba(71,85,105,0.08))`;
+                    // HT soll im Table-Modus wie LT aussehen, aber
+                    // - HT „nur oben“ (nur Umrandung, keine starke Füllung)
+                    // - Umrandung entspricht exakt den Spaltenfarben (TIER 1..5)
 
-                    // Farbunterscheidung nur über Border (wie bisher), Text bleibt neutral
-                    // Tabelle: NICHT füllen + NICHT farbig umranden.
-                    // Alle Spielerblöcke (HT/LT) sind gleich (schwarz/dunkel), Tier wird nur über die Spaltenüberschrift sichtbar.
-                    const fieldBorder = 'rgba(6, 182, 212, 0.25)';
+                    // Füllung wie LT (gedämpft)
+                    // LT soll NICHT umrundet sein: Standard-Textfeld bleibt neutral und ohne farbige Border.
+                    // HT soll stark umrundet sein (inkl. farbiger Border nach Spalten-Farbton) und dabei nur sehr wenig Füllung haben.
 
+                    // Füllung
+                    const fieldBg = isHT
+                        ? `linear-gradient(135deg, rgba(148,163,184,0.02), rgba(71,85,105,0.02))`
+                        : `linear-gradient(135deg, rgba(148,163,184,0.00), rgba(71,85,105,0.00))`;
+
+                    // Umrandung
+                    const fieldBorder = isHT
+                        ? {
+                            "HT1": "rgba(251, 191, 36, 0.75)",
+                            "HT2": "rgba(148, 163, 184, 0.80)",
+                            "HT3": "rgba(205, 127, 50, 0.80)",
+                            "HT4": "rgba(124, 58, 237, 0.80)",
+                            "HT5": "rgba(236, 72, 153, 0.80)",
+                            "NT": "rgba(100, 116, 139, 0.22)"
+                          }[tier] || 'rgba(148, 163, 184, 0.22)'
+                        : 'rgba(148, 163, 184, 0.00)';
+
+                    // Text
                     const fieldText = '#E5E7EB';
 
+
+                    // Wichtig: Die optische HT/LT-Differenz im Table-Modus kommt primär über Inline-Styles.
+                    // (Es existieren noch ältere CSS-Overrides für .player-table-tier-badge / .player-in-table.tier-HT*,
+                    // die aber hier nicht mehr entscheidend sein sollen, da die Badge nicht gerendert wird.)
 
                     if (isAdminUser) {
                         // Admin select dropdown

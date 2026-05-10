@@ -2159,10 +2159,12 @@
             }
         }
 
+        /* Smartphone/Tablet: kleiner Layout-Fit */
         @media (max-width: 760px) {
             .container { 
                 padding: 1rem; 
             }
+
             
             .header {
                 flex-direction: column;
@@ -2603,6 +2605,21 @@
             return pointsB - pointsA;
         });
 
+        // Tie handling (same Punkte => same Placement/Rank, next rank is skipped)
+        // Beispiel: 10,10,10,9 => A/B/C => #1, D => #4
+        const pointsToRank = new Map();
+        let lastPoints = null;
+        let lastRank = 0;
+        for (let i = 0; i < filtered.length; i++) {
+            const p = getPlayerTotalPoints(filtered[i]);
+            if (lastPoints === null || p !== lastPoints) {
+                lastRank = i + 1; // Rank jumps by the block size automatically
+                lastPoints = p;
+            }
+            pointsToRank.set(p, lastRank);
+        }
+
+
         if (filtered.length === 0) {
             container.innerHTML = `<div class="empty-modern"><i class="fas fa-user-slash"></i> Keine Spieler gefunden.</div>`;
             return;
@@ -2612,8 +2629,9 @@
         for (let idx = 0; idx < filtered.length; idx++) {
             const player = filtered[idx];
             const totalPoints = getPlayerTotalPoints(player);
-            const placement = idx + 1;
+            const placement = pointsToRank.get(totalPoints) || (idx + 1);
             let placementLabel = `#${placement}`;
+
             let placementColor = "#64748B"; // gray
             
             if (placement === 1) {
@@ -2632,11 +2650,37 @@
             const modesWithTier = modes.map(mode => {
                 const tier = player.tiers?.[mode.id] || "NT";
                 const tierPoints = TIER_POINTS[tier] || 0;
-                return { mode, tier, tierPoints };
+                const setAt = player.tierMeta?.[mode.id]?.setAt ?? 0;
+                return { mode, tier, tierPoints, setAt };
             });
             
-            // Sort descending by tier points (highest tier first)
-            modesWithTier.sort((a, b) => b.tierPoints - a.tierPoints);
+            // Sort by tier strength (higher first).
+            // If same tier strength: older entry first (left).
+            modesWithTier.sort((a, b) => {
+                // 1) higher tier first
+                if (b.tierPoints !== a.tierPoints) return b.tierPoints - a.tierPoints;
+
+                // 2) same tier level => fixed mode order
+                // Desired: mace, vanilla, uhc, axe, sword, smp, nethop, pot
+                const modeOrder = {
+                    mace: 1,
+                    vanilla: 2,
+                    uhc: 3,
+                    axe: 4,
+                    sword: 5,
+                    smp: 6,
+                    nethop: 7,
+                    pot: 8
+                };
+
+                const orderA = modeOrder[a.mode.id] ?? 999;
+                const orderB = modeOrder[b.mode.id] ?? 999;
+
+                if (orderA !== orderB) return orderA - orderB;
+
+                // 3) deterministic fallback
+                return (a.setAt || 0) - (b.setAt || 0);
+            });
             
             for (const item of modesWithTier) {
                 const { mode, tier } = item;
@@ -2905,9 +2949,28 @@
             return pointsB - pointsA;
         });
         
+        const allPoints = allPlayers.map(p => getPlayerTotalPoints(p));
         const playerIndex = allPlayers.findIndex(p => p.id === player.id);
-        const position = playerIndex >= 0 ? playerIndex + 1 : 0;
         const totalPoints = getPlayerTotalPoints(player);
+
+        // Tie handling for modal (same Punkte => same Position/Rank, next rank skipped)
+        let position = 0;
+        if (playerIndex >= 0) {
+            let lastPoints = null;
+            let lastRank = 0;
+            for (let i = 0; i < allPlayers.length; i++) {
+                const p = allPoints[i];
+                if (lastPoints === null || p !== lastPoints) {
+                    lastRank = i + 1;
+                    lastPoints = p;
+                }
+                if (allPlayers[i].id === player.id) {
+                    position = lastRank;
+                    break;
+                }
+            }
+        }
+
 
         // Modal öffnen mit Loading-State
         modal.classList.add("active");
@@ -3072,15 +3135,19 @@ function attachAdminListeners() {
         const select = containerActions?.querySelector(".admin-select");
         if (!select || !playerId || !mode) return;
         const newTier = select.value;
-        
+
         // Show loading state
         const originalHtml = btn.innerHTML;
         btn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border: 2px solid rgba(6, 182, 212, 0.2); border-top: 2px solid #06B6D4;"></div>';
         btn.disabled = true;
         select.disabled = true;
-        
+
         try {
+            // Tier value update
             await set(ref(db, `players/${playerId}/tiers/${mode}`), newTier);
+            // Store "entry time" for deterministic ordering in Overall
+            await set(ref(db, `players/${playerId}/tierMeta/${mode}/setAt`), Date.now());
+
             btn.innerHTML = '<i class="fas fa-check-circle"></i>';
             setTimeout(() => { 
                 if(btn) {
@@ -3222,7 +3289,15 @@ async function addNewPlayer() {
                                 tiers[mode.id] = "NT";
                             }
                         }
-                        newMap[id] = { id, name: val.name || "Unbekannt", tiers, notes: val.notes || "" };
+
+                        const tierMeta = val.tierMeta || {};
+                        newMap[id] = { 
+                            id,
+                            name: val.name || "Unbekannt",
+                            tiers,
+                            tierMeta,
+                            notes: val.notes || ""
+                        };
                     }
                 }
                 playersMap = newMap;

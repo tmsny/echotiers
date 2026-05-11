@@ -1618,15 +1618,22 @@
         .player-table-tier-badge.tier-LT5 { background: rgba(249, 168, 212, 0.14) !important; border-color: rgba(244, 114, 182, 0.35) !important; color: #111827 !important; }
         .player-table-tier-badge.tier-NT { background: rgba(100, 116, 139, 0.18) !important; border-color: rgba(100, 116, 139, 0.45) !important; color: #F8FAFC !important; }
 
-        .player-in-table:hover .player-table-tier-badge {
+.player-in-table:hover .player-table-tier-badge {
             transform: scale(1.08);
             box-shadow: 
                 0 10px 28px rgba(0, 0, 0, 0.45),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
+        /* NT -> Schrift + Umrandung neben dem Namen ausblenden (aber Rang/Position bleibt sichtbar)
+           In der Tabelle ist das: Spielername und Tier-Badge ausblenden, Feld-Rahmen über Inline bleibt. */
+        .player-in-table.tier-NT .player-table-tier-badge,
+        .player-in-table.tier-NT .player-table-name {
+            display: none !important;
+        }
 
         /* Namen bei den 8 Modi/Tier-Spalten sichtbar machen (horizontal) */
+
         .modes-grid .player-table-name,
         .player-in-table .player-table-name {
             display: block !important;
@@ -2332,13 +2339,14 @@
     <div class="header">
         <div class="logo-area">
             <h1><img src="img/logo.webp" alt="EchoTiers Logo"> EchoTiers</h1>
-            <div class="badge-new">NT → LT5</div>
         </div>
+
         <div class="header-actions">
             <a href="https://discord.gg/dVwJKeVsDj" target="_blank" class="discord-btn"><i class="fab fa-discord"></i> Discord</a>
             <div id="authWidget" class="auth-card"></div>
         </div>
     </div>
+
 
     <div id="modesList" class="modes-strip"></div>
 
@@ -2590,10 +2598,15 @@
 
     function renderOverallMode(container) {
         let filtered = Object.values(playersMap);
-        
-        // Filter by search query
+
+        // IMPORTANT:
+        // Ranking must not change when filtering by search.
+        // We therefore keep the full list for rank calculation, but only narrow down what we render.
+        let renderedFiltered = filtered;
+
+        // Filter by search query (only affects rendering, not rank computation)
         if (searchQuery) {
-            filtered = filtered.filter(p => 
+            renderedFiltered = renderedFiltered.filter(p =>
                 p.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
@@ -2606,24 +2619,35 @@
         });
 
         // Tie handling (same Punkte => same Placement/Rank, next rank is skipped)
-        // Beispiel: 10,10,10,9 => A/B/C => #1, D => #4
         const pointsToRank = new Map();
         let lastPoints = null;
         let lastRank = 0;
         for (let i = 0; i < filtered.length; i++) {
             const p = getPlayerTotalPoints(filtered[i]);
             if (lastPoints === null || p !== lastPoints) {
-                lastRank = i + 1; // Rank jumps by the block size automatically
+                lastRank = i + 1; // rank jumps by the block size automatically
                 lastPoints = p;
             }
             pointsToRank.set(p, lastRank);
         }
 
-
-        if (filtered.length === 0) {
+        if (renderedFiltered.length === 0) {
             container.innerHTML = `<div class="empty-modern"><i class="fas fa-user-slash"></i> Keine Spieler gefunden.</div>`;
             return;
         }
+
+        // Render order should follow the ranked order
+        renderedFiltered.sort((a, b) => {
+            const rankA = pointsToRank.get(getPlayerTotalPoints(a)) ?? 999999;
+            const rankB = pointsToRank.get(getPlayerTotalPoints(b)) ?? 999999;
+            if (rankA !== rankB) return rankA - rankB;
+            return a.name.localeCompare(b.name);
+        });
+
+
+        // At this point `renderedFiltered` is sorted by the rank map.
+        // Rendering uses the rank computed from the *full* filtered list (without search affecting ranks).
+
 
         let html = "";
         for (let idx = 0; idx < filtered.length; idx++) {
@@ -2873,16 +2897,18 @@
                     }
                     
             html += `
-<div class="player-in-table" data-id="${player.id}" style="background: ${fieldBg}; border-color: ${fieldBorder};">
+<div class="player-in-table ${tier}" data-id="${player.id}" style="background: ${fieldBg}; border-color: ${fieldBorder};">
                             <div class="player-table-avatar">
                                 <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
                             </div>
-                            <div class="player-table-name" style="color: ${fieldText};">${escapeHtml(player.name)}</div>
+                    <div class="player-table-name" style="color: ${fieldText};">${escapeHtml(player.name)}</div>
                             ${tierBadgeHtml}
+
                             <div style="width: 56px;" aria-hidden="true"></div>
                             ${isAdminUser ? `
                                 <input type="text" class="admin-region-input" value="${escapeHtml(player.region || 'NA')}" placeholder="Region" data-playerid="${player.id}" style="font-size: 0.7rem; min-width: 65px;">
                             ` : ""}
+
 
                         </div>
                     `;
@@ -3333,8 +3359,37 @@ async function addNewPlayer() {
 
         const searchField = document.getElementById("searchGlobal");
         const tierSelect = document.getElementById("tierFilterGlobal");
-        searchField.addEventListener("input", (e) => { searchQuery = e.target.value; renderPlayers(); });
+        
+        // Live filtern (aber Modal nur auf Enter)
+        searchField.addEventListener("input", (e) => {
+            searchQuery = e.target.value;
+            renderPlayers();
+        });
+
+        searchField.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+
+            if (!searchQuery || !searchQuery.trim()) return;
+
+            const q = searchQuery.trim().toLowerCase();
+            // Best match: exakter Name first, sonst alphabetisch
+            const matches = Object.values(playersMap).filter(p => (p.name || "").toLowerCase().includes(q));
+            if (matches.length === 0) return;
+
+            let chosen = null;
+            const exact = matches.filter(p => (p.name || "").toLowerCase() === q);
+            if (exact.length > 0) {
+                chosen = exact[0];
+            } else {
+                chosen = matches.sort((a, b) => (a.name || "").localeCompare(b.name || ""))[0];
+            }
+
+            if (chosen) openPlayerModal(chosen);
+        });
+
         tierSelect.addEventListener("change", (e) => { tierFilter = e.target.value; renderPlayers(); });
+
         
         const newBtn = document.getElementById("newPlayerBtn");
         if (newBtn) newBtn.addEventListener("click", addNewPlayer);

@@ -1,10 +1,11 @@
-# TODO – Region-Felder neu + 8 Modi umstellen
+# TODO – EchoTiers cracked + Slash-Handling
 
-- [x] 0) Bestehende Region-Logik entfernen (naRegions, getRegionUI, region badge Klassen, Admin-Region-Controls)
-- [ ] 1) Neues “Region-Formfeld” bauen (Rechteck + Halbkreise an Enden), in gleicher Position wie bisheriges NA-Feld
-- [ ] 2) Admin UI: Klick auf Region-Feld → Eingabe Region-Name + Farben (Umrandung stark, Füllung stark/schwach/transparent, Schrift stark)
-- [ ] 3) Persistenz: region style Config in Firebase unter playersMeta/regionStyles (oder gleichwertig)
-- [ ] 4) Rendering: Spieler benutzt `player.region` als key für Style und rendert Feld korrekt
-- [ ] 5) 8 Modi Tabelle: Spieler-Felder auf “nur umrandet, keine Füllung” umstellen
-- [ ] 6) Manuell testen (Overall + 8 Modi + Admin Speichern/Ändern)
+- [ ] 0) Parser einbauen: `rawName` → `{ name, cracked }` (leading `/` => cracked, Name ohne `/`)
+- [ ] 1) `addNewPlayer()` updaten: Name/ID/DB speichern (inkl. `cracked`)
+- [ ] 2) `subscribePlayers()` updaten: `cracked` aus DB laden (fallback false für alte Daten)
+- [x] 3) Rendering Tierlist: Badge (klein) neben dem Spielernamen anzeigen, ohne Sortierung/Filter zu ändern
+- [x] 4) Rendering Modal/Profile: Badge (klein) anzeigen, Skin/NameMC korrekt über `player.name`
+
+- [ ] 5) Optional: Seed-Sample kompatibel (cracked=false bei fehlendem Feld)
+- [x] 6) Manuell testen: /Lukas, Lukas, Alt-Daten
 

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -582,6 +582,22 @@
             min-width: 120px;
             flex: 0 1 auto;
             white-space: nowrap;
+        }
+
+        .cracked-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.2rem 0.45rem;
+            border-radius: 999px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #FEE2E2;
+            background: rgba(239, 68, 68, 0.14);
+            border: 1.5px solid rgba(239, 68, 68, 0.45);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
         
         .player-card:hover .player-name {
@@ -2508,6 +2524,11 @@
 
     // --- Helper: Avatar wie auf mctiers (minotar helm 3D? aber classic face)
     const getAvatarUrl = (name) => `https://minotar.net/helm/${encodeURIComponent(name)}/56.png`;
+    const getPlayerAvatarUrl = (player) => {
+        const skinNameToUse = (player?.cracked && player?.skinName) ? player.skinName : player?.name;
+        return `https://minotar.net/helm/${encodeURIComponent(skinNameToUse || '')}/56.png`;
+    };
+
 
     // --- Region UI / Admin-configurable NA regions ---
     // Admin can configure which region strings should be highlighted as "NA" (red).
@@ -2552,6 +2573,16 @@
         }
     }
 
+    // --- Slash -> cracked parsing ---
+    // Input example:
+    //   "/Lukas" => cracked=true, name="Lukas" (skin/profile should use "Lukas")
+    function parsePlayerInput(rawName) {
+        const cleaned = String(rawName ?? "").trim();
+        const cracked = cleaned.startsWith("/");
+        const name = cracked ? cleaned.replace(/^\/+/, "").trim() : cleaned;
+        return { name, cracked };
+    }
+
     // Calculate total points for a player (all modes except overall)
     function getPlayerTotalPoints(player) {
 
@@ -2563,6 +2594,7 @@
         }
         return totalPoints;
     }
+
 
     // --- Tier CSS Klasse dynamisch
     function getTierStyle(tier) {
@@ -2711,12 +2743,16 @@
                 <div class="player-card overall-player-card" data-id="${player.id}">
                     <div class="placement-badge" style="color: ${placementColor};">${placementLabel}</div>
                     <div class="avatar">
-                        <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
+                        <img src="${getPlayerAvatarUrl(player)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
                     </div>
                     <div class="player-details">
-                        <div class="player-name">${escapeHtml(player.name)}</div>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <div class="player-name">${escapeHtml(player.name)}</div>
+                            ${player.cracked ? `<div class="cracked-badge" title="Cracked">CRACKED</div>` : ``}
+                        </div>
                         <div class="player-stats">${totalPoints} Punkte</div>
                     </div>
+
                     <div class="region-badge ${regionClass}">${regionLabel}</div>
                     <div class="modes-grid">${modesHtml}</div>
                     <div class="player-notes">${notesDisplay}</div>
@@ -2875,9 +2911,12 @@
             html += `
 <div class="player-in-table" data-id="${player.id}" style="background: ${fieldBg}; border-color: ${fieldBorder};">
                             <div class="player-table-avatar">
-                                <img src="${getAvatarUrl(player.name)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
+                                <img src="${getPlayerAvatarUrl(player)}" alt="${player.name}" onerror="this.src='https://minotar.net/helm/steve/56.png'">
                             </div>
-                            <div class="player-table-name" style="color: ${fieldText};">${escapeHtml(player.name)}</div>
+                            <div style="display:flex; flex-direction:column; gap:0.15rem; align-items:flex-start;">
+                                <div class="player-table-name" style="color: ${fieldText};">${escapeHtml(player.name)}</div>
+                                ${player.cracked ? `<div class="cracked-badge" style="margin-top:0.05rem; font-size:0.55rem; padding:0.15rem 0.35rem;">CRACKED</div>` : ``}
+                            </div>
                             ${tierBadgeHtml}
                             <div style="width: 56px;" aria-hidden="true"></div>
                             ${isAdminUser ? `
@@ -2974,24 +3013,67 @@
 
         // Modal öffnen mit Loading-State
         modal.classList.add("active");
-        modalName.textContent = player.name;
+        modalName.innerHTML = `${escapeHtml(player.name)}${player.cracked ? ` <span class="cracked-badge" style="margin-left:0.6rem; font-size:0.65rem;">CRACKED</span>` : ``}`;
         modalPosition.textContent = `#${position}`;
+
+        // Skin-Override nur für cracked Spieler (Admin)
+        const existingSkinName = player.cracked ? (player.skinName || "") : "";
+        const skinOverrideHtml = (isAdminUser && player.cracked)
+            ? `
+                <div style="margin: 0.8rem 0 0.2rem; display:flex; gap:0.6rem; flex-wrap:wrap; justify-content:center; align-items:center;">
+                    <input id="modalSkinOverrideInput" type="text" value="${escapeHtml(existingSkinName)}" placeholder="Skin-Name" style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(6, 182, 212, 0.3); padding: 0.6rem 1rem; border-radius: 50px; color:#EDF2F8; font-weight:600; width: 260px; outline:none;">
+                    <button id="modalSkinOverrideSave" class="admin-edit" data-playerid="${player.id}" style="padding: 0.6rem 1.1rem;">Skin speichern</button>
+                </div>
+              `
+            : ``;
+
+        // ensure no duplicated override blocks when modal is opened multiple times
+        const existingOverride = document.getElementById("modalSkinOverrideBlock");
+        existingOverride?.remove();
+        if (skinOverrideHtml) {
+            const wrapper = document.createElement("div");
+            wrapper.id = "modalSkinOverrideBlock";
+            wrapper.innerHTML = skinOverrideHtml;
+            document.getElementById("modalPlayerRegion").insertAdjacentElement("afterend", wrapper);
+        }
+
+        // Bind save handler (cracked only)
+        if (isAdminUser && player.cracked) {
+            const saveBtn = document.getElementById("modalSkinOverrideSave");
+            const input = document.getElementById("modalSkinOverrideInput");
+            if (saveBtn && input) {
+                saveBtn.addEventListener("click", async () => {
+                    const newSkinName = (input.value || "").trim();
+                    if (!newSkinName) {
+                        alert("Bitte einen Skin-Namen eingeben.");
+                        return;
+                    }
+                    try {
+                        await set(ref(db, `players/${player.id}/skinName`), newSkinName);
+                        // Reload locally
+                        playersMap[player.id].skinName = newSkinName;
+                        // Update skin immediately
+                        skinImg.src = `https://visage.surgeplay.com/full/512/${encodeURIComponent(newSkinName)}`;
+                    } catch (e) {
+                        alert("Fehler beim Speichern des Skins: " + e.message);
+                    }
+                }, { once: true });
+            }
+        }
+
         modalPoints.textContent = `${totalPoints} Punkte`;
         const regionValue = (player.region || "NA").toUpperCase();
         const regionClass = regionValue === "EU" ? "region-eu" : regionValue === "NA" ? "region-na" : "region-default";
         document.getElementById("modalPlayerRegion").innerHTML = `<div class="region-badge ${regionClass}">${regionValue}</div>`;
         modalTiers.innerHTML = `<div class="loading-container" style="grid-column: 1/-1; min-height: 120px;"><div class="spinner-wrapper"><div class="spinner-glow"></div><span>Lade Ränge...</span></div></div>`;
-        modalSkin.src = "";
+        const skinNameToUse = (player.cracked && player.skinName) ? player.skinName : player.name;
 
-        // Skin mit Rotation (3D Minecraft Character Rendering (isometrisch)
-        const skinImg = new Image();
-        skinImg.onload = () => {
-            modalSkin.src = skinImg.src;
-        };
-        skinImg.onerror = () => {
+        // stable: set the modal skin src directly (no intermediate Image() race)
+        modalSkin.onerror = () => {
             modalSkin.src = "https://visage.surgeplay.com/full/512/Steve";
         };
-        skinImg.src = `https://visage.surgeplay.com/full/512/${encodeURIComponent(player.name)}`;
+        modalSkin.src = `https://visage.surgeplay.com/full/512/${encodeURIComponent(skinNameToUse)}`;
+
 
         // NameMC Link
         modalNameMc.href = `https://namemc.com/profile/${encodeURIComponent(player.name)}`;
@@ -3234,7 +3316,13 @@ async function handlePlayerDelete(e) {
 async function addNewPlayer() {
         const rawName = prompt("Name des Spielers:", "Neuer Spieler");
         if (!rawName || rawName.trim() === "") return;
-        const name = rawName.trim();
+
+        const { name, cracked } = parsePlayerInput(rawName);
+        if (!name) {
+            alert("Bitte einen gültigen Spielernamen eingeben (z.B. 'Lukas' oder '/Lukas').");
+            return;
+        }
+
         let id = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
         if (!id) id = "player_" + Date.now();
         if (playersMap[id]) {
@@ -3247,13 +3335,14 @@ async function addNewPlayer() {
         
         const defaultTiers = {};
         for (const m of GAME_MODES) defaultTiers[m.id] = "NT";   // Startet mit NT
-        const newPlayer = { name: name, tiers: defaultTiers, notes: "", region: region };
+        const newPlayer = { name: name, cracked: !!cracked, tiers: defaultTiers, notes: "", region: region };
         try {
             await set(ref(db, `players/${id}`), newPlayer);
         } catch(e) {
             alert("Fehler beim Erstellen: " + e.message);
         }
     }
+
 
     // --- Beispieldaten (falls DB leer) ---
     async function seedSampleData() {
@@ -3269,9 +3358,10 @@ async function addNewPlayer() {
         ];
         for (const p of samplePlayers) {
             const id = p.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-            await set(ref(db, `players/${id}`), { name: p.name, tiers: p.tiers, notes: p.notes || "" });
+            await set(ref(db, `players/${id}`), { name: p.name, cracked: false, tiers: p.tiers, notes: p.notes || "" });
         }
     }
+
 
     // --- Firebase Listener realtime ---
     function subscribePlayers() {
@@ -3294,6 +3384,8 @@ async function addNewPlayer() {
                         newMap[id] = { 
                             id,
                             name: val.name || "Unbekannt",
+                            cracked: !!val.cracked,
+                            skinName: val.skinName || "",
                             tiers,
                             tierMeta,
                             notes: val.notes || ""

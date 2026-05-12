@@ -3384,12 +3384,7 @@ async function addNewPlayer() {
         const snapshot = await get(ref(db, "players"));
         if (snapshot.exists()) return;
         const samplePlayers = [
-            { name: "Technoblade", tiers: { vanilla:"HT1", uhc:"HT1", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT2", mace:"HT3" }, notes: "Top Player" },
-            { name: "Fruitberries", tiers: { vanilla:"HT1", uhc:"HT2", pot:"HT2", nethop:"HT1", smp:"HT1", sword:"HT1", axe:"HT1", mace:"HT2" }, notes: "UHC Spezialist" },
-            { name: "Dream", tiers: { vanilla:"HT4", uhc:"LT1", pot:"HT2", nethop:"HT3", smp:"HT4", sword:"HT3", axe:"LT2", mace:"LT3" }, notes: "" },
-            { name: "Purpled", tiers: { vanilla:"HT3", uhc:"HT3", pot:"HT2", nethop:"HT2", smp:"HT3", sword:"HT2", axe:"HT4", mace:"LT1" }, notes: "Aufsteiger" },
-            { name: "Illumina", tiers: { vanilla:"HT1", uhc:"HT2", pot:"HT3", nethop:"HT2", smp:"HT2", sword:"HT1", axe:"HT2", mace:"HT3" }, notes: "" },
-            { name: "NewPlayer", tiers: { vanilla:"NT", uhc:"NT", pot:"NT", nethop:"NT", smp:"NT", sword:"NT", axe:"NT", mace:"NT" }, notes: "Zu bewerten" }
+            
         ];
         for (const p of samplePlayers) {
             const id = p.name.toLowerCase().replace(/[^a-z0-9]/g, '_');

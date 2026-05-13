@@ -488,6 +488,7 @@
             animation: none;
             cursor: pointer;
             position: relative;
+            align-self: center;
             overflow: hidden;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
@@ -1714,33 +1715,133 @@
             letter-spacing: 0.2px;
         }
 
-        .overall-player-card .region-badge {
+        /* Overall: Alias-Feld (ersetzt Region-badge)
+           Admin kann Text setzen + Border-Farbe wählen.
+           Normal-User sieht nur 3 Buchstaben und Hover-Tooltip mit vollem Text.
+        */
+        .overall-alias {
             grid-column: 4;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.75rem 1rem;
+            padding: 0.65rem 0.95rem;
             border-radius: 999px;
             font-weight: 900;
             font-size: 0.85rem;
-            letter-spacing: 0.18px;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 0.12px;
+            color: #E2E8F0;
+            border: 2px solid rgba(6, 182, 212, 0.35);
+            background: rgba(15, 23, 42, 0.35);
             min-width: 70px;
+            position: relative;
+            box-shadow:
+                0 10px 28px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            cursor: default;
+            align-self: center;
+            user-select: none;
+            /* align exactly with the same horizontal band as the tiers row */
+            grid-row: 1;
         }
 
-        .overall-player-card .region-default {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(34, 197, 94, 0.08));
-            border-color: rgba(34, 197, 94, 0.45);
-            color: #D8F7E5;
+        .overall-alias .alias-text {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            max-width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
-        .overall-player-card .region-na {
-            /* "NA" ist jetzt admin-konfigurierbar (nur bestimmte Regionen rot) */
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.08));
-            border-color: rgba(239, 68, 68, 0.45);
-            color: #FDE2E2;
+        .overall-alias .alias-text::first-letter {
+            text-transform: uppercase;
         }
+
+        .overall-alias.has-alias {
+            cursor: pointer;
+        }
+
+.overall-alias .alias-tooltip {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 14px);
+            transform: translateX(-50%) translateY(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.15s ease;
+            background: rgba(2, 6, 23, 0.92);
+            border: 1.5px solid rgba(6, 182, 212, 0.45);
+            color: #EAF2FF;
+            border-radius: 14px;
+            padding: 0.6rem 0.95rem;
+            box-shadow:
+                0 22px 60px rgba(0,0,0,0.70),
+                inset 0 1px 0 rgba(255,255,255,0.10);
+            font-size: 0.82rem;
+            font-weight: 900;
+            letter-spacing: 0.12px;
+            z-index: 9999;
+            white-space: nowrap;
+        }
+
+        .overall-alias .alias-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 7px;
+            border-style: solid;
+            border-color: rgba(2, 6, 23, 0.88) transparent transparent transparent;
+        }
+
+        .overall-alias:hover .alias-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0px);
+        }
+
+        /* Admin overlay inputs */
+        .overall-alias.admin-edit {
+            background: rgba(2, 6, 23, 0.35);
+            cursor: text;
+        }
+
+        .overall-alias.admin-edit .admin-alias-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .overall-alias.admin-edit input {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            color: #EDF2F8;
+            border-radius: 12px;
+            padding: 0.35rem 0.55rem;
+            font-weight: 800;
+            outline: none;
+            width: 120px;
+        }
+
+        .overall-alias.admin-edit input:focus {
+            border-color: rgba(6, 182, 212, 0.65);
+            box-shadow: 0 0 18px rgba(6, 182, 212, 0.25);
+        }
+
+        .overall-alias.admin-edit select {
+            appearance: none;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            color: #EDF2F8;
+            border-radius: 12px;
+            padding: 0.35rem 0.6rem;
+            font-weight: 900;
+            outline: none;
+            max-width: 120px;
+        }
+
 
 
         .overall-player-card .modes-grid {
@@ -2760,10 +2861,7 @@
             }
             
             const notesDisplay = player.notes ? escapeHtml(player.notes) : "–";
-            const regionValue = (player.region || "NA").toUpperCase();
-            const regionUI = getRegionUI(regionValue);
-            const regionClass = regionUI.className;
-            const regionLabel = regionUI.label;
+
 
 
             html += `
@@ -2780,7 +2878,12 @@
                         <div class="player-stats">${totalPoints} Punkte</div>
                     </div>
 
-                    <div class="region-badge ${regionClass}">${regionLabel}</div>
+                    <div class="overall-alias" data-playerid="${player.id}" style="border-color: ${escapeHtml(player.overallAliasColor || '#06B6D4')}; background: rgba(15, 23, 42, 0.35); grid-row: 1; z-index: 50;">
+
+                        <div class="alias-text">${escapeHtml((player.overallAliasText || 'NA').slice(0, 3))}</div>
+                        <div class="alias-tooltip">${escapeHtml(player.overallAliasText || 'NA')}</div>
+                    </div>
+
                     <div class="modes-grid">${modesHtml}</div>
                     <div class="player-notes">${notesDisplay}</div>
             `;
@@ -2788,13 +2891,28 @@
             if (isAdminUser) {
                 html += `
                     <div class="admin-actions">
-                        <input type="text" class="admin-region-input" value="${escapeHtml(player.region || 'NA')}" placeholder="Region" data-playerid="${player.id}" style="font-size: 0.7rem; min-width: 55px;">
+                        <div class="overall-alias admin-edit has-alias" data-overallalias="1" data-playerid="${player.id}" style="border-color: ${escapeHtml(player.overallAliasColor || '#06B6D4')}; background: rgba(2, 6, 23, 0.35);">
+                            <div class="admin-alias-controls">
+                                <input type="text" class="admin-overall-alias-input" value="${escapeHtml(player.overallAliasText || 'NA')}" placeholder="Alias">
+                                <select class="admin-overall-alias-color">
+                                    <option value="#06B6D4" ${player.overallAliasColor === '#06B6D4' ? 'selected' : ''}>#06B6D4</option>
+                                    <option value="#0EA5E9" ${player.overallAliasColor === '#0EA5E9' ? 'selected' : ''}>#0EA5E9</option>
+                                    <option value="#FBBF24" ${player.overallAliasColor === '#FBBF24' ? 'selected' : ''}>#FBBF24</option>
+                                    <option value="#22D3EE" ${player.overallAliasColor === '#22D3EE' ? 'selected' : ''}>#22D3EE</option>
+                                    <option value="#7C3AED" ${player.overallAliasColor === '#7C3AED' ? 'selected' : ''}>#7C3AED</option>
+                                    <option value="#EC4899" ${player.overallAliasColor === '#EC4899' ? 'selected' : ''}>#EC4899</option>
+                                    <option value="#10B981" ${player.overallAliasColor === '#10B981' ? 'selected' : ''}>#10B981</option>
+                                    <option value="#EF4444" ${player.overallAliasColor === '#EF4444' ? 'selected' : ''}>#EF4444</option>
+                                </select>
+                                <button class="admin-save" data-overallalias="save" data-playerid="${player.id}" style="padding:0.45rem 0.7rem; font-size:0.7rem;"><i class="fas fa-check"></i></button>
+                            </div>
+                        </div>
                         <button class="admin-edit" data-player="${player.id}" data-name="${escapeHtml(player.name)}" title="Notizen bearbeiten"><i class="fas fa-edit"></i></button>
-
                         <button class="admin-delete" data-player="${player.id}" data-name="${escapeHtml(player.name)}"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
             }
+
             html += `</div>`;
         }
         container.innerHTML = html;
@@ -2975,6 +3093,28 @@
 
     function attachTablePlayerCardListeners() {
         document.querySelectorAll(".player-in-table").forEach(card => {
+            card.addEventListener("mousedown", (e) => {
+                if (!isAdminUser) return;
+                if (e.button !== 0) return; // nur linker Klick
+                if (!e.shiftKey) return;
+
+                const playerId = card.getAttribute("data-id");
+                if (!playerId) return;
+
+                const direction = e.clientY < (window.innerHeight / 2) ? "up" : "down";
+
+                // Only allow shifting when the neighbor has the same tier in the current mode
+                const baseTier = (playersMap[playerId]?.tiers?.[currentMode]) || 'NT';
+                const neighborAllowed = Array.from(document.querySelectorAll(`.player-in-table[data-id]`))
+                    .map(el => el.getAttribute('data-id'))
+                    .filter(id => id && playersMap[id] && id !== playerId)
+                    .some(id => ((playersMap[id]?.tiers?.[currentMode]) || 'NT') === baseTier);
+
+                if (!neighborAllowed) return;
+
+                swapAdminPositionForPlayer(playerId, { direction, mode: currentMode });
+            });
+
             card.addEventListener("click", (e) => {
                 const playerId = card.getAttribute("data-id");
                 if (playerId && playersMap[playerId]) {
@@ -2984,8 +3124,41 @@
         });
     }
 
+
     function attachPlayerCardListeners() {
         document.querySelectorAll(".player-card").forEach(card => {
+            card.addEventListener("mousedown", (e) => {
+                if (!isAdminUser) return;
+                if (e.button !== 0) return; // nur linker Klick
+                if (!e.shiftKey) return;
+
+                const playerId = card.getAttribute("data-id");
+                if (!playerId) return;
+
+        // Overall-Liste: up wenn Maus oben im Card-Bereich
+                const rect = card.getBoundingClientRect();
+                const direction = e.clientY < (rect.top + rect.height / 2) ? "up" : "down";
+
+                // Only allow shifting among equal score/tier
+                if (currentMode === 'overall') {
+                    const basePoints = getPlayerTotalPoints(playersMap[playerId]);
+                    const otherIsAllowed = Array.from(document.querySelectorAll(`.player-card[data-id]`))
+                        .map(el => el.getAttribute('data-id'))
+                        .filter(id => id && playersMap[id])
+                        .some(id => getPlayerTotalPoints(playersMap[id]) === basePoints && id !== playerId);
+                    if (!otherIsAllowed) return;
+                } else {
+                    const baseTier = playersMap[playerId]?.tiers?.[currentMode] || 'NT';
+                    const otherIsAllowed = Array.from(document.querySelectorAll(`.player-in-table[data-id]`))
+                        .map(el => el.getAttribute('data-id'))
+                        .filter(id => id && playersMap[id])
+                        .some(id => (playersMap[id]?.tiers?.[currentMode] || 'NT') === baseTier && id !== playerId);
+                    if (!otherIsAllowed) return;
+                }
+
+                swapAdminPositionForPlayer(playerId, { direction, mode: currentMode });
+            });
+
             card.addEventListener("click", (e) => {
                 // Nicht triggern wenn auf Admin-Buttons geklickt wird
                 if (e.target.closest(".admin-actions")) return;
@@ -2996,6 +3169,7 @@
             });
         });
     }
+
 
     function openPlayerModal(player) {
         const modal = document.getElementById("playerModal");
@@ -3154,10 +3328,17 @@
     
 
 function attachAdminListeners() {
+        // Overall alias save
+        document.querySelectorAll("button[data-overallalias='save']").forEach(btn => {
+            btn.removeEventListener("click", handleOverallAliasSave);
+            btn.addEventListener("click", handleOverallAliasSave);
+        });
+
         document.querySelectorAll(".admin-save").forEach(btn => {
             btn.removeEventListener("click", handleTierSave);
             btn.addEventListener("click", handleTierSave);
         });
+
         document.querySelectorAll(".admin-edit").forEach(btn => {
             btn.removeEventListener("click", handleEditNotes);
             btn.addEventListener("click", handleEditNotes);
@@ -3244,9 +3425,31 @@ function attachAdminListeners() {
         }
     }
 
+    async function handleOverallAliasSave(e) {
+        const btn = e.currentTarget;
+        const playerId = btn.getAttribute("data-playerid");
+        if (!playerId) return;
+
+        const card = btn.closest(".player-card");
+        const controls = card?.querySelector(".overall-alias.admin-edit[data-playerid='" + playerId + "']");
+        const input = controls?.querySelector("input.admin-overall-alias-input");
+        const select = controls?.querySelector("select.admin-overall-alias-color");
+
+        const newAliasText = (input?.value || "").trim();
+        const newAliasColor = (select?.value || "#06B6D4").trim();
+
+        try {
+            await set(ref(db, `players/${playerId}/overallAliasText`), newAliasText || "NA");
+            await set(ref(db, `players/${playerId}/overallAliasColor`), newAliasColor);
+        } catch (err) {
+            alert("Fehler beim Aktualisieren des Overall-Alias.");
+        }
+    }
+
     async function handleTierSave(e) {
         const btn = e.currentTarget;
         const playerId = btn.getAttribute("data-player");
+
         const mode = btn.getAttribute("data-mode");
         const containerActions = btn.closest(".admin-actions");
         const select = containerActions?.querySelector(".admin-select");
@@ -3348,6 +3551,107 @@ async function handlePlayerDelete(e) {
         }
     }
 
+    async function swapAdminPositionForPlayer(playerId, { direction, mode }) {
+        if (!isAdminUser) return;
+        if (!playerId || !direction) return;
+
+        // prevent accidental concurrent swaps
+        if (window.__echotiersSwapInProgress) return;
+        window.__echotiersSwapInProgress = true;
+
+        try {
+            const player = playersMap[playerId];
+            if (!player) return;
+
+            const allPlayers = Object.values(playersMap);
+
+            // overall: order determined by total points; we swap deterministic tie-breaking key
+            if (mode === 'overall') {
+                const points = getPlayerTotalPoints(player);
+
+                const tieGroup = allPlayers.filter(p => getPlayerTotalPoints(p) === points);
+                if (tieGroup.length < 2) return;
+
+                const orderModeId = GAME_MODES.find(m => m.id !== 'overall')?.id;
+                if (!orderModeId) return;
+
+                const key = (p) => p.tierMeta?.[orderModeId]?.setAt ?? 0;
+                tieGroup.sort((a, b) => key(a) - key(b) || a.name.localeCompare(b.name));
+
+                const idx = tieGroup.findIndex(p => p.id === playerId);
+                if (idx < 0) return;
+
+                const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+                if (swapIdx < 0 || swapIdx >= tieGroup.length) return;
+
+                const other = tieGroup[swapIdx];
+
+                const aSetAtRef = ref(db, `players/${playerId}/tierMeta/${orderModeId}/setAt`);
+                const bSetAtRef = ref(db, `players/${other.id}/tierMeta/${orderModeId}/setAt`);
+
+                const aSetAt = player.tierMeta?.[orderModeId]?.setAt ?? 0;
+                const bSetAt = other.tierMeta?.[orderModeId]?.setAt ?? 0;
+
+                await set(aSetAtRef, bSetAt);
+                await set(bSetAtRef, aSetAt);
+
+                // local update
+                playersMap[playerId].tierMeta = playersMap[playerId].tierMeta || {};
+                playersMap[other.id].tierMeta = playersMap[other.id].tierMeta || {};
+                playersMap[playerId].tierMeta[orderModeId] = playersMap[playerId].tierMeta[orderModeId] || {};
+                playersMap[other.id].tierMeta[orderModeId] = playersMap[other.id].tierMeta[orderModeId] || {};
+                playersMap[playerId].tierMeta[orderModeId].setAt = bSetAt;
+                playersMap[other.id].tierMeta[orderModeId].setAt = aSetAt;
+
+                renderPlayers();
+                return;
+            }
+
+            // modes table (non-overall)
+            const modeId = mode;
+            const playerTier = player.tiers?.[modeId] || 'NT';
+
+            const columnPlayers = allPlayers.filter(p => (p.tiers?.[modeId] || 'NT') === playerTier);
+            if (columnPlayers.length < 2) return;
+
+            columnPlayers.sort((a, b) => {
+                const aSetAt = a.tierMeta?.[modeId]?.setAt ?? 0;
+                const bSetAt = b.tierMeta?.[modeId]?.setAt ?? 0;
+                if (aSetAt !== bSetAt) return aSetAt - bSetAt;
+                return a.name.localeCompare(b.name);
+            });
+
+            const idx = columnPlayers.findIndex(p => p.id === playerId);
+            if (idx < 0) return;
+
+            const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+            if (swapIdx < 0 || swapIdx >= columnPlayers.length) return;
+
+            const other = columnPlayers[swapIdx];
+
+            const aRef = ref(db, `players/${playerId}/tierMeta/${modeId}/setAt`);
+            const bRef = ref(db, `players/${other.id}/tierMeta/${modeId}/setAt`);
+
+            const aSetAt = player.tierMeta?.[modeId]?.setAt ?? 0;
+            const bSetAt = other.tierMeta?.[modeId]?.setAt ?? 0;
+
+            await set(aRef, bSetAt);
+            await set(bRef, aSetAt);
+
+            playersMap[playerId].tierMeta = playersMap[playerId].tierMeta || {};
+            playersMap[other.id].tierMeta = playersMap[other.id].tierMeta || {};
+            playersMap[playerId].tierMeta[modeId] = playersMap[playerId].tierMeta[modeId] || {};
+            playersMap[other.id].tierMeta[modeId] = playersMap[other.id].tierMeta[modeId] || {};
+            playersMap[playerId].tierMeta[modeId].setAt = bSetAt;
+            playersMap[other.id].tierMeta[modeId].setAt = aSetAt;
+
+            renderPlayers();
+        } finally {
+            window.__echotiersSwapInProgress = false;
+        }
+    }
+
+
 async function addNewPlayer() {
         const rawName = prompt("Name des Spielers:", "Neuer Spieler");
         if (!rawName || rawName.trim() === "") return;
@@ -3418,11 +3722,14 @@ async function addNewPlayer() {
                             skinName: val.skinName || "",
                             tiers,
                             tierMeta,
+                            overallAliasText: val.overallAliasText || "NA",
+                            overallAliasColor: val.overallAliasColor || "#06B6D4",
                             notes: val.notes || ""
                         };
                     }
                 }
                 playersMap = newMap;
+
             } else {
                 playersMap = {};
             }

@@ -1,19 +1,24 @@
-# TODO – EchoTiers Overall Alias (admin-editierbar)
+# Echotiers – TODO
 
-- [x] 1) `index.html` CSS ergänzen: Alias-Feld + Tooltip + Hover-Style + Border-Farbe aus DB
-- [x] 2) Firebase-Datenmodell ergänzen:
-  - [x] in `subscribePlayers()` `overallAliasText` / `overallAliasColor` laden (Fallback)
-- [x] 3) Overall-Rendering anpassen in `renderOverallMode()`:
-  - [x] Region-badge (NA-Feld) ersetzen durch Alias-Feld
-  - [x] Default anzeigen: `overallAliasText` erste 3 Buchstaben
-  - [x] Tooltip/Overlay bei Hover: vollständiger Alias-Text leicht über das Feld
-- [x] 4) Admin-UI ergänzen in `renderOverallMode()`:
-  - [x] klickbares Alias-Feld => Text Input + Farbauswahl (Select)
-  - [x] Speichern via Button
-- [x] 5) Event-Handler ergänzen (Admin save):
-  - [x] `handleOverallAliasSave` (set player -> overallAliasText & overallAliasColor)
-- [ ] 6) Funktion testen manuell:
-  - [ ] Admin setzt Alias-Text + Farbe
-  - [ ] Nicht-Admin sieht 3 Buchstaben + Tooltip
+## Ziel
+Separate Ansichten für **Current** und **Prime** pro Modus (Option B), mit Regel:
+- **alle Current-Modi** werden bei **Overall-Current** gepunktet
+- **Prime** wird bei **Overall-Prime** gepunktet
+
+## Schritte
+1. Repo-Stand prüfen: `index.html` (bestehende Render-/Filter-Logik für overall & mode table).
+2. (Done) State-Grundlage angepasst: `tierlistMode` wird als UI-Selektor verstanden.
+3. Plan bestätigen: UI-Rendering in `renderPlayers()` so umbauen, dass pro Modus zwei Sections gerendert werden (Current & Prime), insgesamt 18 Sections.
+4. Berechnungspfade anpassen:
+   - `getPlayerTotalPoints(player, tierlistMode)` so erweitern, dass Overall-Points korrekt aus Current bzw Prime Tiers gezogen werden.
+   - `getPlayerTotalPoints`-Callsites in Overall Current/Prime und Modal anpassen.
+5. Rendering anpassen:
+   - `renderOverallMode` in zwei Teil-Renderings aufteilen.
+   - `renderModeTable` ebenfalls in zwei Teil-Renderings (Current/Prime) aufteilen.
+6. Admin/Swap Logik prüfen:
+   - Tier-Selects müssen weiterhin auf den richtigen Pfad schreiben (tiers vs primeTiers), aber Shift- bzw Swap in korrektem Sub-Mode/Overall-Sub-Ansicht laufen.
+7. Event-Listener/State:
+   - `tierlistMode` Switch ggf. nur noch für Selected-UI nutzen oder durch festes Rendering (current+prime) ersetzt.
+8. Testlauf im Browser: Filter, Search, Prime/Current Anzeige, Modal-Tiers, Admin-Save/Swap.
 
 

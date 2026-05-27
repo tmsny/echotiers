@@ -2480,6 +2480,14 @@
             </select>
         </div>
         <div id="statusBadge" class="role-indicator"><i class="fas fa-lock"></i> Nur-Lesen</div>
+        <div class="filter-group" style="margin-left: auto;">
+            <i class="fas fa-layer-group" style="color:#94A3B8;"></i>
+            <select id="tierlistModeSelect" class="tier-select-filter" style="min-width: 160px;" title="Welche Tierlist soll angezeigt/bearbeitet werden?">
+                <option value="current">Current</option>
+                <option value="prime">Prime</option>
+            </select>
+        </div>
+
     </div>
 
     <div id="playersList" class="players-grid">
@@ -2629,10 +2637,13 @@
     // --- Global State ---
     let playersMap = {};        // id -> { name, tiers: { overall: "HT1", ... } }
     let currentMode = "overall";
+    let tierlistMode = "current"; // UI-Selektor (wird nicht mehr für Overall-Points gebraucht, weil beide Subansichten gerendert werden)
     let searchQuery = "";
     let tierFilter = "all";
     let isAdminUser = false;    // nur wenn email = tomy.blasbichler@gmail.com UND eingeloggt
     let currentFirebaseUser = null;
+
+
 
     // --- Helper: Avatar wie auf mctiers (minotar helm 3D? aber classic face)
     const getAvatarUrl = (name) => `https://minotar.net/helm/${encodeURIComponent(name)}/56.png`;
@@ -2701,8 +2712,10 @@
         let totalPoints = 0;
         const modes = GAME_MODES.filter(m => m.id !== "overall");
         for (const mode of modes) {
-            const tier = player.tiers?.[mode.id] || "NT";
+            const src = tierlistMode === "prime" ? (player.primeTiers || player.tiers || {}) : (player.tiers || {});
+            const tier = src?.[mode.id] || "NT";
             totalPoints += TIER_POINTS[tier] || 0;
+
         }
         return totalPoints;
     }
@@ -2753,6 +2766,7 @@
             const pointsB = getPlayerTotalPoints(b);
             return pointsB - pointsA;
         });
+
 
         // Tie handling (same Punkte => same Placement/Rank, next rank is skipped)
         const pointsToRank = new Map();
@@ -2808,9 +2822,12 @@
             
             // Sort modes by tier level of this player
             const modesWithTier = modes.map(mode => {
-                const tier = player.tiers?.[mode.id] || "NT";
+                const srcTiers = tierlistMode === "prime" ? (player.primeTiers || player.tiers || {}) : (player.tiers || {});
+                const srcMeta = tierlistMode === "prime" ? (player.primeTierMeta || {}) : (player.tierMeta || {});
+                const tier = srcTiers?.[mode.id] || "NT";
                 const tierPoints = TIER_POINTS[tier] || 0;
-                const setAt = player.tierMeta?.[mode.id]?.setAt ?? 0;
+                const setAt = srcMeta?.[mode.id]?.setAt ?? 0;
+
                 return { mode, tier, tierPoints, setAt };
             });
             
@@ -2940,8 +2957,10 @@
         // Filter by tier if set
         if (tierFilter !== "all") {
             filtered = filtered.filter(p => {
-                const playerTier = p.tiers?.[currentMode] || "NT";
+                const src = tierlistMode === "prime" ? (p.primeTiers || p.tiers || {}) : (p.tiers || {});
+                const playerTier = src?.[currentMode] || "NT";
                 return playerTier === tierFilter;
+
             });
         }
 
@@ -2965,14 +2984,19 @@
         
         for (const column of tierColumns) {
             const playersInColumn = filtered.filter(p => {
-                const tier = p.tiers?.[currentMode] || "NT";
+                const src = tierlistMode === "prime" ? (p.primeTiers || p.tiers || {}) : (p.tiers || {});
+                const tier = src?.[currentMode] || "NT";
                 return column.tiers.includes(tier);
+
             });
 
             // Sort: HT first (above), then LT (below) to make HT vs LT clearly readable
             playersInColumn.sort((a, b) => {
-                const tierA = a.tiers?.[currentMode] || "NT";
-                const tierB = b.tiers?.[currentMode] || "NT";
+                const aSrc = tierlistMode === "prime" ? (a.primeTiers || a.tiers || {}) : (a.tiers || {});
+                const bSrc = tierlistMode === "prime" ? (b.primeTiers || b.tiers || {}) : (b.tiers || {});
+                const tierA = aSrc?.[currentMode] || "NT";
+                const tierB = bSrc?.[currentMode] || "NT";
+
 
                 const isHT_A = tierA.startsWith("HT");
                 const isHT_B = tierB.startsWith("HT");
@@ -2997,9 +3021,11 @@
                 html += `<div style="text-align: center; color: #64748B; font-size: 0.85rem; padding: 1.5rem 0;">Keine Spieler</div>`;
             } else {
                 for (const player of playersInColumn) {
-                    const tier = player.tiers?.[currentMode] || "NT";
+                    const src = tierlistMode === "prime" ? (player.primeTiers || player.tiers || {}) : (player.tiers || {});
+                    const tier = src?.[currentMode] || "NT";
                     const tierClass = getTierStyle(tier);
                     const colorInfo = TIER_COLOR_INFO[tier];
+
                     
                     // Badge anzeigen wir nicht mehr (HT/LT soll über das umgebende Feld sichtbar sein)
                     // const tierLabel = TIER_LABELS[tier] || tier;
@@ -3044,8 +3070,11 @@
 
                     if (isAdminUser) {
                         // Admin select dropdown
-                        let selectHtml = `<select class="admin-select" data-playerid="${player.id}" data-mode="${currentMode}" style="font-size: 0.7rem; padding: 0.3rem 0.5rem;">`;
+                        let selectHtml = `<select class="admin-select" data-playerid="${player.id}" data-mode="${currentMode}" data-tierlistmode="${tierlistMode}" style="font-size: 0.7rem; padding: 0.3rem 0.5rem;">`;
+
                         for (let t of TIERS) {
+
+
                             const selected = (t === tier) ? "selected" : "";
                             selectHtml += `<option value="${t}" ${selected}>${t}</option>`;
                         }
@@ -3104,11 +3133,18 @@
                 const direction = e.clientY < (window.innerHeight / 2) ? "up" : "down";
 
                 // Only allow shifting when the neighbor has the same tier in the current mode
-                const baseTier = (playersMap[playerId]?.tiers?.[currentMode]) || 'NT';
+                const src = tierlistMode === "prime" ? (playersMap[playerId]?.primeTiers || playersMap[playerId]?.tiers || {}) : (playersMap[playerId]?.tiers || {});
+                const baseTier = (src?.[currentMode]) || 'NT';
                 const neighborAllowed = Array.from(document.querySelectorAll(`.player-in-table[data-id]`))
+
                     .map(el => el.getAttribute('data-id'))
                     .filter(id => id && playersMap[id] && id !== playerId)
-                    .some(id => ((playersMap[id]?.tiers?.[currentMode]) || 'NT') === baseTier);
+                    .some(id => {
+                    const src2 = tierlistMode === "prime" ? (playersMap[id]?.primeTiers || playersMap[id]?.tiers || {}) : (playersMap[id]?.tiers || {});
+                    const t2 = src2?.[currentMode] || 'NT';
+                    return t2 === baseTier;
+                });
+
 
                 if (!neighborAllowed) return;
 
@@ -3302,9 +3338,11 @@
                         </div>
                     `;
                 } else {
-                    const tier = player.tiers?.[mode.id] || "NT";
+                    const src = tierlistMode === "prime" ? (player.primeTiers || player.tiers || {}) : (player.tiers || {});
+                    const tier = src?.[mode.id] || "NT";
                     const colorInfo = TIER_COLOR_INFO[tier];
                     const modeIcon = mode.image ? `<img src="${mode.image}" alt="${mode.label}" style="height: 1.6rem; width: 1.6rem; object-fit: contain;">` : `<i class="fas ${mode.icon}" style="font-size: 1.6rem;"></i>`;
+
 
                     tiersHtml += `
                         <div class="tier-item">
@@ -3371,15 +3409,26 @@ function attachAdminListeners() {
         const newTier = select.value;
         const playerId = select.getAttribute("data-playerid");
         const mode = select.getAttribute("data-mode");
+        const selectedTierlistMode = select.getAttribute("data-tierlistmode") || "current";
         if (!playerId || !mode) return;
         
+        const isPrime = selectedTierlistMode === "prime";
+        const tierPath = isPrime ? `players/${playerId}/primeTiers/${mode}` : `players/${playerId}/tiers/${mode}`;
+
         try {
-            await set(ref(db, `players/${playerId}/tiers/${mode}`), newTier);
+            await set(ref(db, tierPath), newTier);
+
+            // Store entry time for deterministic ordering in Overall
+            const metaPath = isPrime
+                ? `players/${playerId}/primeTierMeta/${mode}/setAt`
+                : `players/${playerId}/tierMeta/${mode}/setAt`;
+            await set(ref(db, metaPath), Date.now());
         } catch (err) {
             alert("Fehler beim Aktualisieren.");
             renderPlayers();
         }
     }
+
 
     async function handleRegionChange(e) {
         const select = e.currentTarget;
@@ -3706,6 +3755,7 @@ async function addNewPlayer() {
                 const newMap = {};
                 for (const [id, val] of Object.entries(data)) {
                     if (val && typeof val === 'object') {
+                        // Current tiers
                         let tiers = val.tiers || {};
                         // Only set default NT for non-overall modes
                         for (const mode of GAME_MODES) {
@@ -3715,6 +3765,21 @@ async function addNewPlayer() {
                         }
 
                         const tierMeta = val.tierMeta || {};
+
+                        // Prime tiers (new)
+                        let primeTiers = val.primeTiers || null;
+                        if (!primeTiers) {
+                            // Prime starts identical to Current
+                            primeTiers = { ...tiers };
+                        }
+                        for (const mode of GAME_MODES) {
+                            if (mode.id !== "overall" && !primeTiers[mode.id]) {
+                                primeTiers[mode.id] = "NT";
+                            }
+                        }
+
+                        const primeTierMeta = val.primeTierMeta || {};
+
                         newMap[id] = { 
                             id,
                             name: val.name || "Unbekannt",
@@ -3722,6 +3787,8 @@ async function addNewPlayer() {
                             skinName: val.skinName || "",
                             tiers,
                             tierMeta,
+                            primeTiers,
+                            primeTierMeta,
                             overallAliasText: val.overallAliasText || "NA",
                             overallAliasColor: val.overallAliasColor || "#06B6D4",
                             notes: val.notes || ""
@@ -3736,6 +3803,7 @@ async function addNewPlayer() {
             renderPlayers();
         });
     }
+
 
     // --- UI Komponenten bauen: Modus Buttons, Filter-Listener ---
     function buildUI() {
@@ -3762,8 +3830,19 @@ async function addNewPlayer() {
 
         const searchField = document.getElementById("searchGlobal");
         const tierSelect = document.getElementById("tierFilterGlobal");
+        const tierlistModeSelect = document.getElementById("tierlistModeSelect");
+
         searchField.addEventListener("input", (e) => { searchQuery = e.target.value; renderPlayers(); });
         tierSelect.addEventListener("change", (e) => { tierFilter = e.target.value; renderPlayers(); });
+        
+        if (tierlistModeSelect) {
+            tierlistModeSelect.addEventListener("change", (e) => {
+                tierlistMode = e.target.value === "prime" ? "prime" : "current";
+                renderPlayers();
+            });
+        }
+        
+
         
         const newBtn = document.getElementById("newPlayerBtn");
 

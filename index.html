@@ -1955,9 +1955,24 @@
             border-color: rgba(251, 191, 36, 0.45);
         }
 
-        .overall-player-card .mode-badge-with-tier.tier-2 .tier-oval-badge {
+.overall-player-card .mode-badge-with-tier.tier-2 .tier-oval-badge {
             background: rgba(226, 232, 240, 0.18);
-            border-color: rgba(148, 163, 184, 0.45);
+            border-color: rgba(148, 163, 184, 0.72) !important;
+            border-width: 2.6px;
+            box-shadow:
+                0 0 18px rgba(148, 163, 184, 0.22),
+                inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        /* Overall: HT2/LT2 Border so that it matches the text glow strength */
+.overall-player-card .mode-badge-with-tier.tier-HT2 .tier-oval-badge,
+        .overall-player-card .mode-badge-with-tier.tier-LT2 .tier-oval-badge {
+            border-color: rgba(148, 163, 184, 0.92) !important;
+            border-width: 3.3px;
+            box-shadow:
+                0 0 30px rgba(148, 163, 184, 0.36),
+                0 0 18px rgba(148, 163, 184, 0.22),
+                inset 0 1px 0 rgba(255,255,255,0.14);
         }
 
         .overall-player-card .mode-badge-with-tier.tier-3 .tier-oval-badge {

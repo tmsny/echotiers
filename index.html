@@ -3848,7 +3848,40 @@ async function addNewPlayer() {
         const tierlistModeSelect = document.getElementById("tierlistModeSelect");
 
         searchField.addEventListener("input", (e) => { searchQuery = e.target.value; renderPlayers(); });
+        searchField.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+
+            const raw = (searchField.value || "").trim();
+            if (!raw) return;
+
+            const q = raw.toLowerCase();
+
+            // Exact name match (case-insensitive)
+            let match = Object.values(playersMap).find(p => (p?.name || "").toLowerCase() === q);
+
+            // If no exact match, open the best-ranked visible candidate (fallback)
+            if (!match) {
+                const candidates = Object.values(playersMap)
+                    .filter(p => (p?.name || "").toLowerCase().includes(q));
+
+                if (candidates.length === 0) return;
+
+                // Best-ranked = same placement logic as overall modal (by total points)
+                candidates.sort((a, b) => {
+                    const pointsA = getPlayerTotalPoints(a);
+                    const pointsB = getPlayerTotalPoints(b);
+                    if (pointsB !== pointsA) return pointsB - pointsA;
+                    return (a.name || "").localeCompare(b.name || "");
+                });
+                match = candidates[0];
+            }
+
+            if (match) openPlayerModal(match);
+        });
+
         tierSelect.addEventListener("change", (e) => { tierFilter = e.target.value; renderPlayers(); });
+
         
         if (tierlistModeSelect) {
             tierlistModeSelect.addEventListener("change", (e) => {
